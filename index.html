@@ -703,7 +703,7 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
       <div class="row" style="justify-content:space-between"><h3>Google Gemini</h3><span class="gstat" id="gStat"></span></div>
       <p class="sub" style="margin:4px 0 0">Ücretsiz katman için Google AI Studio'dan anahtar alabilirsin; kullanım sınırları Google'a bağlıdır ve değişebilir.</p>
       <label class="f" for="aKey">API anahtarı</label><input type="password" id="aKey" style="width:100%" autocomplete="off">
-      <label class="f" for="aModel">Model</label><input type="text" id="aModel" list="gModels" style="width:100%"><datalist id="gModels"><option value="gemini-3.8-flash"></option><option value="gemini-3.7-flash"></option><option value="gemini-3.5-flash-lite"></option></datalist>
+      <label class="f" for="aModel">Model</label><input type="text" id="aModel" list="gModels" style="width:100%"><datalist id="gModels"><option value="gemini-3.8-flash"></option><option value="gemini-3.5-flash-lite"></option></datalist>
       <div class="row" style="margin-top:10px"><button class="btn" id="aKaydet">Kaydet</button><button class="btn g" id="gTest">Bağlantıyı test et</button><a class="btn g" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Ücretsiz anahtar al ↗</a></div>
       <p class="tag" id="gTestOut" style="margin-top:8px"></p>
     </div>
@@ -784,7 +784,14 @@ const defNews=[{name:"Genel",feeds:["https://feeds.bbci.co.uk/turkce/rss.xml","h
 const mk=()=>({tasks:[],events:[],notes:[],lists:[],projects:[],habits:[],formulas:[],calcs:[],etables:[],news:structuredClone(defNews),newsU:0,del:{},pushed:{},settings:{gemini:"",model:"gemini-3.8-flash",city:null,ntfy:"asistan-"+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6),ntfyOn:false,ghTok:"",ghId:""}});
 function norm(j){const d=mk();const o=Object.assign(d,j||{});o.settings=Object.assign(d.settings,(j||{}).settings||{});return o}
 let db;try{db=norm(JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){db=mk()}
-if(!db.settings.model||db.settings.model==="gemini-2.5-flash"||db.settings.model==="models/gemini-2.5-flash"){db.settings.model="gemini-3.8-flash";localStorage.setItem(KEY,JSON.stringify(db))}
+function normalizeGeminiModel(value){
+  const m=String(value||"").trim().replace(/^models\//,"");
+  if(!m||m==="gemini-2.5-flash")return "gemini-3.8-flash";
+  if(m==="gemini-2.5-flash-lite")return "gemini-3.5-flash-lite";
+  return m;
+}
+const savedModel=normalizeGeminiModel(db.settings.model);
+if(savedModel!==db.settings.model){db.settings.model=savedModel;localStorage.setItem(KEY,JSON.stringify(db))}
 let fileHandle=null,view=new Date(),sel,curNote=null,newsView="Özet",ft;
 view.setDate(1);
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -1593,7 +1600,7 @@ matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>setTheme
 /* Gemini Interactions API ve akıllı asistan */
 async function gem(contents,sys,json){
   const s=db.settings;if(!s.gemini)throw new Error("Önce Gemini API anahtarını gir (Yapay zeka › Gemini).");
-  const model="models/"+(s.model||"gemini-3.8-flash").replace(/^models\//,"");
+  const model="models/"+normalizeGeminiModel(s.model||"gemini-3.8-flash");
   const input=Array.isArray(contents)?contents.map(m=>{
     const txt=Array.isArray(m.parts)?m.parts.map(p=>p.text||"").join("\n"):String(m.content||"");
     return (m.role==="model"?"Asistan":"Kullanıcı")+": "+txt;
@@ -1612,7 +1619,7 @@ function aiTab(t){$$("#aiTabs .chip").forEach(c=>c.classList.toggle("on",c.datas
 $("#aiTabs").onclick=e=>{const b=e.target.closest("[data-at]");if(b)aiTab(b.dataset.at)};
 $("#gGit").onclick=()=>{go("ai");aiTab("gem")};
 $("#gTest").onclick=async()=>{const o=$("#gTestOut");o.textContent="Test ediliyor…";
-  db.settings.gemini=$("#aKey").value.trim();db.settings.model=$("#aModel").value.trim()||"gemini-3.8-flash";save(true);
+  db.settings.gemini=$("#aKey").value.trim();db.settings.model=normalizeGeminiModel($("#aModel").value);save(true);
   try{const t=await gem([{role:"user",parts:[{text:"Sadece 'tamam' yaz."}]}]);o.textContent="Bağlantı çalışıyor: "+t.trim().slice(0,40);gStat()}catch(e){o.textContent="Hata: "+e.message}};
 let smActs=[];
 const okD=v=>/^\d{4}-\d\d-\d\d$/.test(v||""),okR=v=>/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(v||"");
@@ -1658,7 +1665,7 @@ $("#aiGir").onkeydown=e=>{if(e.key==="Enter")$("#aiGonder").click()};
 
 /* ayarlar */
 function fill(){$("#aKey").value=db.settings.gemini;$("#aModel").value=db.settings.model;$("#nConu").value=db.settings.ntfy;$("#nDurum").textContent=db.settings.ntfyOn?"Telefon bildirimleri açık.":"Telefon bildirimleri kapalı.";$("#ghTok").value=db.settings.ghTok||"";odStatus(db.settings.ghTok?"Bağlı."+(ss.last?" Son eşitleme: "+ss.last:""):"Bağlı değil.");if(db.settings.city)$("#cDurum").textContent="Seçili konum: "+db.settings.city.name}
-$("#aKaydet").onclick=()=>{db.settings.gemini=$("#aKey").value.trim();db.settings.model=$("#aModel").value.trim()||"gemini-3.8-flash";save(true);gStat();toast("Kaydedildi.")};
+$("#aKaydet").onclick=()=>{db.settings.gemini=$("#aKey").value.trim();db.settings.model=normalizeGeminiModel($("#aModel").value);save(true);gStat();toast("Kaydedildi.")};
 $("#bildirimIzin").onclick=async()=>{if(!("Notification" in window))return toast("Tarayıcı bildirim desteklemiyor.");toast((await Notification.requestPermission())==="granted"?"Tarayıcı bildirimi açık.":"İzin verilmedi.")};
 
 /* ntfy: sayfa kapalıyken telefona zamanlanmış bildirim */
