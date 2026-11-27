@@ -1376,21 +1376,29 @@ function parseFeedXML(x){
     return {title:tx(n,"title"),link:l,desc:txt(raw).slice(0,160),date:isNaN(t)?"":new Date(t).toISOString(),src,img:u};
   }).filter(i=>i.title&&i.link);
 }
+const feedDiag={};
 async function getFeed(url){
+  const errs=[];
   const get=(p)=>{const c=new AbortController();const to=setTimeout(()=>c.abort(),9000);return fetch(p,{signal:c.signal,cache:"no-store"}).finally(()=>clearTimeout(to))};
-  const xml=async p=>{const r=await get(p);if(!r.ok)throw new Error("http");const i=parseFeedXML(await r.text());if(!i.length)throw new Error("bos");return i};
+  const run=(n,f)=>f().catch(e=>{errs.push(n+": "+(e.name==="AbortError"?"zaman aşımı":e.message==="Failed to fetch"?"engellendi":(e.message||"hata")));throw e});
+  const xml=async p=>{const r=await get(p);if(!r.ok)throw new Error("HTTP "+r.status);const i=parseFeedXML(await r.text());if(!i.length)throw new Error("haber yok");return i};
   const e=encodeURIComponent(url);
-  const tries=[
-    ()=>xml(url),
-    ()=>xml("https://api.allorigins.win/raw?url="+e),
-    ()=>xml("https://corsproxy.io/?url="+e),
-    async()=>{const r=await get("https://api.rss2json.com/v1/api.json?rss_url="+e);const j=await r.json();
-      if(j.status&&j.status!=="ok")throw new Error("r2j");
+  const via=[
+    ["allorigins",()=>xml("https://api.allorigins.win/raw?url="+e)],
+    ["allorigins2",async()=>{const r=await get("https://api.allorigins.win/get?url="+e);if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();const i=parseFeedXML(j.contents||"");if(!i.length)throw new Error("haber yok");return i}],
+    ["codetabs",()=>xml("https://api.codetabs.com/v1/proxy/?quest="+e)],
+    ["corsproxy",()=>xml("https://corsproxy.io/?url="+e)],
+    ["rss2json",async()=>{const r=await get("https://api.rss2json.com/v1/api.json?rss_url="+e);const j=await r.json();
+      if(j.status&&j.status!=="ok")throw new Error(j.message||"hata");
       const i=(j.items||[]).slice(0,12).map(x=>({title:x.title,link:x.link,desc:txt(x.description).slice(0,160),date:x.pubDate||"",src:(j.feed&&j.feed.title)||"",img:imgOf(x)}));
-      if(!i.length)throw new Error("bos");return i}
+      if(!i.length)throw new Error("haber yok");return i}]
   ];
-  for(const f of tries){try{return await f()}catch(e){}}
-  return [];
+  let res=[];
+  try{res=await run("doğrudan",()=>xml(url))}catch(x){
+    try{res=await Promise.any(via.map(([n,f])=>run(n,f)))}catch(y){res=[]}
+  }
+  feedDiag[url]=res.length?"":errs.join(" · ");
+  return res;
 }
 async function feed(url){
   const k="n2:"+url;let c=null;try{c=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}
@@ -1413,13 +1421,14 @@ async function bundle(n,snip,wrap){
   const out=await Promise.all(db.news.map(async c=>({c,it:(await catItems(c)).slice(0,n)})));
   return out.map(o=>{const b=`<h3 style="margin-top:8px">${esc(o.c.name)}</h3>${o.it.map(i=>newsHTML(i,snip)).join("")||'<div class="empty">Haber alınamadı.</div>'}`;return wrap?`<div class="box">${b}</div>`:b}).join("");
 }
+const diagTxt=c=>{const d=(c.feeds.length?c.feeds:[gnews(c.name)]).map(u=>feedDiag[u]).filter(Boolean).join(" | ");return d?`<div class="tag" style="margin-top:6px;word-break:break-word">Teşhis: ${esc(d)}</div>`:""};
 async function haberler(){
   $("#hEtiket").innerHTML=["Özet",...db.news.map(c=>c.name)].map(n=>`<button class="chip ${n===newsView?"on":""}" data-nv="${esc(n)}">${esc(n)}</button>`).join("");
   const box=$("#hListe");box.innerHTML='<div class="empty">Yükleniyor…</div>';
   if(newsView==="Özet"){box.innerHTML=await bundle(3,true,true);return}
   const c=db.news.find(x=>x.name===newsView);if(!c){newsView="Özet";return haberler()}
   const it=await catItems(c);
-  box.innerHTML=`<div class="box">${it.slice(0,12).map((i,n)=>newsHTML(i,true,n===0)).join("")||'<div class="empty">Haber alınamadı. Bağlantını kontrol et.</div>'}</div><button class="btn g" data-ncdel="${esc(c.name)}">Bu kategoriyi sil</button>`;
+  box.innerHTML=`<div class="box">${it.slice(0,12).map((i,n)=>newsHTML(i,true,n===0)).join("")||'<div class="empty">Haber alınamadı. Bağlantını kontrol et.'+diagTxt(c)+'</div>'}</div><button class="btn g" data-ncdel="${esc(c.name)}">Bu kategoriyi sil</button>`;
 }
 document.addEventListener("error",e=>{const t=e.target;if(t&&t.classList&&t.classList.contains("nimg")){const w=t.closest(".nwi");if(w)w.remove()}},true);
 document.addEventListener("click",e=>{const w=e.target.closest&&e.target.closest(".nw");if(!w||e.target.closest("a"))return;const a=w.querySelector("a.nwt");if(a)window.open(a.href,"_blank","noopener")});
