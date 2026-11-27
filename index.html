@@ -193,7 +193,7 @@ button.dr{cursor:pointer}button.dr.on{color:var(--acc)}
 .pg h1{font-size:1.6em;margin:.3em 0;line-height:1.3}.pg h2{font-size:1.3em;margin:.3em 0;line-height:1.3}.pg hr{border:0;border-top:1px solid var(--line)}
 .pg ul,.pg ol{margin:.3em 0;padding-left:1.4em}
 .tk.done{text-decoration:line-through;color:var(--mute)}.tk input{margin-right:4px;vertical-align:middle}
-.ci.g{background:transparent;border:1px dashed var(--tb);border-left-width:3px}.dcard.g{border-left-style:dashed;opacity:.8}
+.ci.sp{border-left-style:dashed;opacity:.85}.ci.g{background:transparent;border:1px dashed var(--tb);border-left-width:3px}.dcard.g{border-left-style:dashed;opacity:.8}
 .mback{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
 .mback[hidden]{display:none}
 .mbox{background:var(--bg);border-radius:12px;width:min(480px,100%);max-height:90vh;overflow:auto;padding:12px;--acc:#2564cf;--acc-ink:#fff;box-shadow:0 12px 40px rgba(0,0,0,.35)}
@@ -443,10 +443,9 @@ main:has(#proje.on){max-width:1400px}
 .gt-r{height:42px;border-bottom:1px solid var(--line)}.gt-r:hover .gt-l,.gt-r:hover .gt-t{background-color:color-mix(in srgb,var(--acc) 5%,var(--panel))}
 .gt-t{position:relative;flex:none}.gt-mr{display:flex;height:22px;border-bottom:1px solid var(--line)}.gt-m{flex:none;font-size:12px;font-weight:600;padding:3px 6px;border-right:1px solid var(--line);overflow:hidden;white-space:nowrap}
 .gt-dr{height:20px;position:relative}.gt-d{position:absolute;top:0;font-size:10px;color:var(--mute);padding:3px 0 0 3px;white-space:nowrap}
-.gt-b{position:absolute;top:10px;height:22px;border-radius:6px;background:color-mix(in srgb,var(--acc) 28%,var(--panel));border:1px solid var(--acc);overflow:hidden}
-.gt-b i{display:block;height:100%;background:var(--acc);opacity:.85}
-.gt-b.late{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 22%,var(--panel))}.gt-b.late i{background:var(--bad)}
-.gt-b.dn{border-color:#2e9d62;background:color-mix(in srgb,#2e9d62 22%,var(--panel))}.gt-b.dn i{background:#2e9d62}
+.gt-b{position:absolute;top:10px;height:22px;border-radius:6px;background:color-mix(in srgb,var(--pc) 28%,var(--panel));border:1px solid var(--pc);overflow:hidden}
+.gt-b i{display:block;height:100%;background:var(--pc);opacity:.85}
+.gt-b.late,.gt-b.dn{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 28%,var(--panel))}.gt-b.late i,.gt-b.dn i{background:var(--pc)}
 .gt-p{position:absolute;top:14px;font-size:12px;color:var(--mute);white-space:nowrap}
 .gt-now{position:absolute;top:0;bottom:0;width:2px;background:var(--nowc);z-index:3;pointer-events:none}
 .gt-now::before{content:"Bugün";position:absolute;top:2px;left:4px;font-size:10px;font-weight:600;color:var(--nowc);background:var(--bg);padding:0 3px;border-radius:3px}
@@ -571,8 +570,9 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 .mu-dz{outline:2px dashed var(--acc)!important;background:color-mix(in srgb,var(--acc) 8%,var(--panel))}
 .mu-rc.mu-dt{box-shadow:-4px 0 0 var(--acc)}.mu-src{opacity:.45}
 
+.cal-evrow{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer}.cal-evrow:last-child{border-bottom:0}.cal-evdate{flex:none;width:58px;text-align:center;padding:7px 4px;border-radius:8px;background:var(--soft);font-weight:700}.cal-evdate b{display:block;font-size:19px}.cal-evinfo{min-width:0;flex:1}.cal-evinfo strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cal-evinfo small{color:var(--mute)}.cal-evtag{width:9px;height:36px;border-radius:8px;background:var(--acc);flex:none}
 /* Proje takvim görünümü */
-.pc-head{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 12px}.pc-head b{min-width:145px;text-align:center}.pc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);overflow:hidden;border-radius:8px}.pc-wd{padding:8px 4px;text-align:center;font-weight:700;background:var(--soft);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.pc-day{min-height:112px;padding:5px;min-width:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--card)}.pc-day.out{opacity:.48}.pc-day.today{box-shadow:inset 0 0 0 2px var(--accent)}.pc-num{font-size:12px;font-weight:700;margin-bottom:5px}.pc-item{font-size:11px;line-height:1.35;padding:3px 4px;margin:2px 0;border-radius:4px;background:var(--accent-soft,var(--soft));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pc-item.sub{border-left:3px solid var(--accent);background:var(--soft)}.pc-item.done{text-decoration:line-through;opacity:.6}.pc-day small{font-size:10px;color:var(--muted)}@media(max-width:700px){.pc-day{min-height:78px;padding:3px}.pc-item{font-size:9px;padding:2px}.pc-wd{font-size:10px;padding:6px 1px}}
+.pc-head{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 12px}.pc-head b{min-width:145px;text-align:center}.pc-grid{display:block;border-top:1px solid var(--line);border-left:1px solid var(--line);overflow:hidden;border-radius:8px}.pc-wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}.pc-wr{position:relative;--pcn:26px;--pcl:21px;min-height:calc(var(--pcn) + var(--lanes) * var(--pcl) + 18px)}.pc-wr .pc-day{min-height:0}.pc-bar{position:absolute;box-sizing:border-box;height:18px;line-height:18px;font-size:11px;padding:0 6px;background:color-mix(in srgb,var(--pc) 28%,var(--card));border-top:1px solid var(--pc);border-bottom:1px solid var(--pc);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;z-index:1}.pc-bar.cl{border-left:3px solid var(--pc);border-radius:5px 0 0 5px}.pc-bar.cr{border-right:1px solid var(--pc);border-radius:0 5px 5px 0}.pc-bar.cl.cr{border-radius:5px}.pc-bar.sub{border-top-style:dashed;border-bottom-style:dashed}.pc-bar.done{text-decoration:line-through;opacity:.6}.pc-bar span{display:block;overflow:hidden;text-overflow:ellipsis}.pc-wr .pc-day small{position:absolute;bottom:2px;left:5px}.pc-wd{padding:8px 4px;text-align:center;font-weight:700;background:var(--soft);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.pc-day{min-height:112px;padding:5px;min-width:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--card)}.pc-day.out{opacity:.48}.pc-day.today{box-shadow:inset 0 0 0 2px var(--accent)}.pc-num{font-size:12px;font-weight:700;margin-bottom:5px}.pc-item{font-size:11px;line-height:1.35;padding:3px 4px;margin:2px 0;border-radius:4px;background:color-mix(in srgb,var(--pc) 24%,var(--card));border-left:3px solid var(--pc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pc-item.sub{border-left-style:dashed}.pc-item.done{text-decoration:line-through;opacity:.6}.pc-day small{font-size:10px;color:var(--muted)}@media(max-width:700px){.pc-day{padding:3px}.pc-wr{--pcn:20px;--pcl:17px}.pc-bar{height:15px;line-height:15px;font-size:9px;padding:0 3px}.pc-wd{font-size:10px;padding:6px 1px}}
 
 
 .date-today-btn{flex:none;margin-left:4px;padding:4px 7px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--acc);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}.date-today-btn:hover{background:var(--hover, var(--panel))}
@@ -647,7 +647,9 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 </section>
 
 <section id="takvim">
-  <h2>Takvim</h2><p class="sub">.ics ile Google, Apple veya Outlook takvimine aktarabilirsin.</p>
+  <h2>Takvim</h2><p class="sub">Dashboard ve yapay zekâ ile oluşturulan etkinlikler burada ortak olarak listelenir ve takvimde tarihine göre gösterilir.</p>
+  <div class="aitabs" id="calTabs"><button class="chip on" data-caltab="calendar">Takvim</button><button class="chip" data-caltab="events">Etkinlikler <span id="calEventCount"></span></button></div>
+  <div id="calPane">
   <div class="box">
     <div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="row" style="gap:4px"><button class="btn g" id="bugunBtn">Bugün</button><button class="btn" id="nwBtn">＋ Yeni</button><button class="btn g" id="onceki" aria-label="Önceki">‹</button><button class="btn g" id="sonraki" aria-label="Sonraki">›</button></div><h3 id="ayBaslik"></h3><div class="row" style="gap:4px"><button class="chip" data-cv="day">Gün</button><button class="chip" data-cv="week">Hafta</button><button class="chip" data-cv="month">Ay</button></div></div>
     <div class="cal" id="cal"></div>
@@ -661,6 +663,10 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
     </div>
   </div>
   <div class="row"><button class="btn g" id="icsOut">.ics dışa aktar</button><label class="btn g" for="icsIn">.ics içe aktar</label><input type="file" id="icsIn" accept=".ics" hidden></div>
+  </div>
+  <div id="calEventsPane" hidden>
+    <div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Tüm etkinlikler</h3><button class="btn" id="calNewEvent">＋ Etkinlik ekle</button></div><div id="calEventList" style="margin-top:12px"></div></div>
+  </div>
 </section>
 
 <section id="notlar">
@@ -677,7 +683,7 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
   <div class="box"><div class="row"><input type="text" id="pNC" list="pClients" placeholder="Müşteri"><input type="text" id="pNN" placeholder="Proje adı"><label class="tag">Başlangıç <input type="date" id="pNS"></label><label class="tag">Bitiş <input type="date" id="pNE"></label><button class="btn" id="pAdd">＋ Proje ekle</button></div></div>
   <div class="box" id="pSubBox"><h3 style="margin:0 0 8px">Alt proje planlama</h3><p class="sub" style="margin:0 0 10px">Bir ana proje seç, alt proje adını ve tarih aralığını gir. Alt projeler Gantt görünümünde ana projenin altında listelenir.</p><div class="row"><select id="pSubParent" aria-label="Ana proje seç"><option value="">Ana proje seç</option></select><input type="text" id="pSubName" placeholder="Alt proje adı"><label class="tag">Başlangıç <input type="date" id="pSubStart"></label><label class="tag">Bitiş <input type="date" id="pSubEnd"></label><button class="btn" id="pSubAdd">＋ Alt proje ekle</button></div><div id="pSubList" style="margin-top:10px"></div></div>
   <div class="box">
-    <div class="ptool"><span class="tag" id="pSum"></span><span id="pGtool" hidden class="row" style="gap:8px"><select id="pScale" aria-label="Ölçek"><option value="28">Ölçek: Gün</option><option value="12">Ölçek: Hafta</option><option value="4">Ölçek: Ay</option></select><button class="btn g" id="pToday">Bugüne git</button></span><button class="btn g" id="pClearAll">Filtreleri temizle</button><button class="btn g" id="pCsv">Excel'e aktar (CSV)</button></div>
+    <div class="ptool"><span class="tag" id="pSum"></span><span id="pGtool" hidden class="row" style="gap:8px"><select id="pScale" aria-label="Ölçek"><option value="28">Ölçek: Gün</option><option value="12">Ölçek: Hafta</option><option value="4">Ölçek: Ay</option></select><button class="btn g" id="pBack3" title="3 ay geri">‹ 3 ay</button><button class="btn g" id="pToday">Bugüne git</button><button class="btn g" id="pFwd3" title="3 ay ileri">3 ay ›</button></span><button class="btn g" id="pClearAll">Filtreleri temizle</button><button class="btn g" id="pCsv">Excel'e aktar (CSV)</button></div>
     <div id="pView"></div>
   </div>
   <datalist id="pClients"></datalist>
@@ -840,8 +846,13 @@ const SORTS=[["","Varsayılan"],["star","Önem derecesi"],["due","Bitiş tarihi"
 const sortFn=k=>({star:(x,y)=>(y.star?1:0)-(x.star?1:0)||(y.created||0)-(x.created||0),due:(x,y)=>(x.due||"9").localeCompare(y.due||"9"),alpha:(x,y)=>x.title.localeCompare(y.title,"tr"),person:(x,y)=>!x.person?1:!y.person?-1:x.person.localeCompare(y.person,"tr"),created:(x,y)=>(y.created||0)-(x.created||0)})[k];
 const todayS=()=>iso(new Date());
 const addD=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
-const inList=(t,l)=>l==="myday"?t.myday===todayS():l==="important"?!!t.star:l==="planned"?!!t.due:l==="all"?true:(t.list||"tasks")===l;
-const listName=id=>{const f=TL.find(x=>x[0]===id);return f?f[1]:(db.lists.find(x=>x.id===id)||{name:"Görevler"}).name};
+const PERSON_LIST_PREFIX="person::";
+const personListId=name=>PERSON_LIST_PREFIX+encodeURIComponent((name||"").trim());
+const personFromList=id=>id.startsWith(PERSON_LIST_PREFIX)?decodeURIComponent(id.slice(PERSON_LIST_PREFIX.length)):null;
+const isPersonList=id=>id.startsWith(PERSON_LIST_PREFIX);
+const personTaskLists=()=>[...new Set(db.tasks.filter(t=>!t.done&&(t.person||"").trim()).map(t=>(t.person||"").trim()))].sort((a,b)=>a.localeCompare(b,"tr")).map(name=>[personListId(name),name+" - TO DO","👤"]);
+const inList=(t,l)=>l==="myday"?t.myday===todayS():l==="important"?!!t.star:l==="planned"?!!t.due:l==="all"?true:isPersonList(l)?!t.done&&(t.person||"").trim()===personFromList(l):(t.list||"tasks")===l;
+const listName=id=>{const f=TL.find(x=>x[0]===id);if(f)return f[1];if(isPersonList(id))return (personFromList(id)||"")+" - TO DO";return (db.lists.find(x=>x.id===id)||{name:"Görevler"}).name};
 const cnt=l=>db.tasks.filter(t=>!t.done&&inList(t,l)).length;
 let mdSel=null,mdEv=null;
 const selT=()=>db.tasks.find(x=>x.id===(mdSel||tdSel)),selE=()=>db.events.find(x=>x.id===mdEv);
@@ -850,7 +861,7 @@ function migrateTasks(){db.tasks.forEach(t=>{
   if(t.list===undefined){t.list="tasks";t.star=t.prio==2}
   if(t.due&&t.due.includes("T")){t.rem=t.due;t.due=t.due.slice(0,10)}
   if(t.steps===undefined)t.steps=[];if(t.note===undefined)t.note="";if(t.rem===undefined)t.rem="";if(t.myday===undefined)t.myday="";if(!t.created)t.created=t.u||Date.now();
-  if(!t.due)t.due="";if(!t.repeat)t.repeat=""})}
+  if(!t.due)t.due="";if(t.start===undefined)t.start="";if(!t.repeat)t.repeat=""})}
 function dlabel(d){const t=todayS();if(d===t)return"Bugün";if(d===addD(1))return"Yarın";if(d===addD(-1))return"Dün";const x=new Date(d+"T00:00");return x.toLocaleDateString("tr-TR",x.getFullYear()===new Date().getFullYear()?{weekday:"short",day:"numeric",month:"short"}:{day:"numeric",month:"short",year:"numeric"})}
 function stepDate(d,r){d=new Date(d);if(r==="daily")d.setDate(d.getDate()+1);else if(r==="weekdays"){do d.setDate(d.getDate()+1);while([0,6].includes(d.getDay()))}else if(r==="weekly")d.setDate(d.getDate()+7);else d.setMonth(d.getMonth()+1);return d}
 const DN=["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"];
@@ -909,7 +920,7 @@ const miniRow=t=>`<div class="item ${t.done?"done":""}"><button class="circ ${t.
 const paBadge=n=>n?`<span class="pa" role="img" title="Atanan: ${esc(n)}" aria-label="Atanan: ${esc(n)}"><svg class="svi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>`:"";
 var tdOrd=[];try{tdOrd=JSON.parse(localStorage.getItem("tdOrder")||"[]")}catch(e){}
 function tdOrdered(){
-  const all=[...TL.map(x=>[x[0],x[1],x[2]]),...db.lists.map(l=>[l.id,l.name,"☰"])],idx=new Map(all.map(x=>[x[0],x])),out=[],seen=new Set();
+  const all=[...TL.map(x=>[x[0],x[1],x[2]]),...db.lists.map(l=>[l.id,l.name,"☰"]),...personTaskLists()],idx=new Map(all.map(x=>[x[0],x])),out=[],seen=new Set();
   (Array.isArray(tdOrd)?tdOrd:[]).forEach(id=>{if(idx.has(id)&&!seen.has(id)){seen.add(id);out.push(idx.get(id))}});
   all.forEach(x=>{if(!seen.has(x[0]))out.push(x)});return out;
 }
@@ -918,6 +929,7 @@ function tdRow(t){
   if(SMART.includes(tdList)&&tdList!=="all")m.push(esc(listName(t.list||"tasks")));
   if(t.myday===todayS()&&tdList!=="myday")m.push("☀ Günüm");
   const s=t.steps||[];if(s.length)m.push(s.filter(x=>x.done).length+" / "+s.length);
+  if(t.start&&t.start>todayS())m.push(`<span>▶ ${dlabel(t.start)}</span>`);
   if(t.due)m.push(`<span class="${!t.done&&t.due<todayS()?"od":t.due===todayS()?"tdy":""}">▦ ${dlabel(t.due)}</span>`);
   if(t.rem)m.push("🔔");if(t.repeat)m.push(t.repeat==="custom"?"↻ "+esc(repSummary(t)):"↻");if(t.note)m.push("▤");
   return `<div class="tr ${t.id===tdSel?"sel":""} ${t.done?"dn":""} ${tdMulti?"multi-mode":""} ${tdSelected.has(t.id)?"multi-selected":""}" data-open="${t.id}">${tdMulti?`<button type="button" class="task-pick ${tdSelected.has(t.id)?"on":""}" data-task-pick="${t.id}" aria-label="${tdSelected.has(t.id)?"Seçimi kaldır":"Görevi seç"}">${tdSelected.has(t.id)?"✓":""}</button>`:""}<button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button><div class="tb"><div class="tt">${esc(t.title)}</div>${m.length?`<div class="tm">${m.map(x=>`<span>${x}</span>`).join("")}</div>`:""}</div>${paBadge(t.person)}<button class="st ${t.star?"on":""}" data-star="${t.id}" aria-label="Önemli">${t.star?"★":"☆"}</button></div>`;
@@ -929,7 +941,7 @@ function tdDetail(t,m){
 <div class="dh"><button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button><input type="text" id="dTitle" value="${esc(t.title)}" ${t.done?'style="text-decoration:line-through"':""}><button class="st ${t.star?"on":""}" data-star="${t.id}" aria-label="Önemli">${t.star?"★":"☆"}</button></div>
 <div class="dc">${steps}<div class="dr"><span style="color:var(--acc)">＋</span><input type="text" class="sti" id="dStep" placeholder="Adım ekle"></div></div>
 <div class="dc"><button class="dr ${my?"on":""}" data-dmy>☀ ${my?"Günüm'e eklendi":"Günüm'e ekle"}</button></div>
-<div class="dc"><label class="dr">🔔 Anımsat<input type="datetime-local" id="dRem" value="${esc(t.rem||"")}"></label><label class="dr">▦ Bitiş tarihi<input type="date" id="dDue" value="${esc(t.due||"")}"></label><label class="dr">↻ Tekrarla<select id="dRep">${Object.entries(REPS).map(([k,v])=>`<option value="${k}" ${t.repeat===k?"selected":""}>${v}</option>`).join("")}</select></label></div>
+<div class="dc"><label class="dr">🔔 Anımsat<input type="datetime-local" id="dRem" value="${esc(t.rem||"")}"></label><label class="dr">▶ Başlangıç tarihi<input type="date" id="dStart" value="${esc(t.start||"")}"></label><label class="dr">▦ Bitiş tarihi<input type="date" id="dDue" value="${esc(t.due||"")}"></label><label class="dr">↻ Tekrarla<select id="dRep">${Object.entries(REPS).map(([k,v])=>`<option value="${k}" ${t.repeat===k?"selected":""}>${v}</option>`).join("")}</select></label></div>
 ${t.repeat==="custom"?customCard(t):""}
 <div class="dc"><label class="dr">👤 Kişi<input type="text" id="dPerson" list="ppl" placeholder="Ad Soyad" value="${esc(t.person||"")}" autocomplete="off"></label>${pplList()}<label class="dr">☰ Liste<select id="dList">${[TL[4],...db.lists.map(l=>[l.id,l.name])].map(x=>`<option value="${x[0]}" ${(t.list||"tasks")===x[0]?"selected":""}>${esc(x[1])}</option>`).join("")}</select></label></div>
 <div class="dc"><textarea id="dNote" placeholder="Not ekle">${esc(t.note||"")}</textarea></div>
@@ -939,9 +951,9 @@ function renderTodo(force){
   const box=$("#todo");if(!box)return;
   const a=document.activeElement;
   if(!force&&a&&a.closest&&a.closest(".td")&&a.matches("input[type=text],textarea"))return;
-  if(!TL.some(x=>x[0]===tdList)&&!db.lists.some(x=>x.id===tdList))tdList="myday";
+  if(!TL.some(x=>x[0]===tdList)&&!db.lists.some(x=>x.id===tdList)&&!(isPersonList(tdList)&&personTaskLists().some(x=>x[0]===tdList)))tdList="myday";
   if(tdSel&&!db.tasks.some(t=>t.id===tdSel))tdSel=null;
-  const keep=$("#tdNew")?{n:$("#tdNew").value,d:$("#tdDue").value,r:$("#tdRep").value,p:$("#tdPeople").value,l:$("#nlName").value,f:a&&a.id}:null;
+  const keep=$("#tdNew")?{n:$("#tdNew").value,s:$("#tdStart").value,d:$("#tdDue").value,r:$("#tdRep").value,p:$("#tdPeople").value,l:$("#nlName").value,f:a&&a.id}:null;
   const own=db.lists.find(x=>x.id===tdList),ppl=people();
   if(tdPerson&&tdPerson!=="__none"&&!ppl.includes(tdPerson)){tdPerson="";saveV()}
   const pf=t=>!tdPerson||(tdPerson==="__none"?!t.person:t.person===tdPerson);
@@ -971,17 +983,17 @@ function renderTodo(force){
   const sel=selT();
   box.className="todo"+(sel?" has-d":"");
   const bulk=tdMulti?`<div class="bulkbar"><span class="tag">${tdSelected.size} görev seçildi</span><button class="btn g" data-bulk-all>Tümünü seç</button><button class="btn g" data-bulk-clear>Seçimi temizle</button><button class="btn" data-bulk-edit ${tdSelected.size?"":"disabled"}>Toplu düzenle</button><button class="btn danger" data-bulk-delete ${tdSelected.size?"":"disabled"}>Toplu sil</button></div>`:"";
-  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><button type="button" class="task-add-btn" data-task-add>Görevi Ekle</button><input type="date" id="tdDue" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).filter(([k])=>k!=="custom").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>${pplList()}${tbar}${bulk}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
-  if(keep){$("#tdNew").value=keep.n;$("#tdDue").value=keep.d;$("#tdRep").value=keep.r;$("#tdPeople").value=keep.p;$("#nlName").value=keep.l;if(keep.f==="tdNew"||keep.f==="nlName"||keep.f==="tdPeople"){const f=$("#"+keep.f);if(f)f.focus()}}
+  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><button type="button" class="task-add-btn" data-task-add>Görevi Ekle</button><input type="date" id="tdStart" value="${todayS()}" title="Başlangıç tarihi" aria-label="Başlangıç tarihi"><input type="date" id="tdDue" title="Bitiş tarihi" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).filter(([k])=>k!=="custom").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>${pplList()}${tbar}${bulk}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
+  if(keep){$("#tdNew").value=keep.n;$("#tdStart").value=keep.s;$("#tdDue").value=keep.d;$("#tdRep").value=keep.r;$("#tdPeople").value=keep.p;$("#nlName").value=keep.l;if(keep.f==="tdNew"||keep.f==="nlName"||keep.f==="tdPeople"){const f=$("#"+keep.f);if(f)f.focus()}}
 }
 function addTask(v){
   v=(v||"").trim();if(!v){toast("Önce görev adını yaz.");$("#tdNew").focus();return}
-  const due=$("#tdDue").value,rep=$("#tdRep").value;
-  const pr=$("#tdPeople").value.trim()||(tdPerson&&tdPerson!=="__none"?tdPerson:"");
-  const t={id:uid(),title:v,list:"tasks",person:pr,due,rem:"",repeat:rep,done:false,star:false,steps:[],note:"",myday:"",created:Date.now()};
-  if(tdList==="myday")t.myday=todayS();else if(tdList==="important")t.star=true;else if(tdList==="planned"){if(!t.due)t.due=todayS()}else if(tdList!=="all")t.list=tdList;
+  const start=$("#tdStart").value,due=$("#tdDue").value,rep=$("#tdRep").value;
+  const pr=$("#tdPeople").value.trim()||(isPersonList(tdList)?personFromList(tdList):(tdPerson&&tdPerson!=="__none"?tdPerson:""));
+  const t={id:uid(),title:v,list:"tasks",person:pr,start,due,rem:"",repeat:rep,done:false,star:false,steps:[],note:"",myday:"",created:Date.now()};
+  if(tdList==="myday")t.myday=todayS();else if(tdList==="important")t.star=true;else if(tdList==="planned"){if(!t.due)t.due=todayS()}else if(tdList!=="all"&&!isPersonList(tdList))t.list=tdList;
   if(rep&&!t.due)t.due=todayS();
-  db.tasks.push(t);$("#tdNew").value="";$("#tdDue").value="";$("#tdRep").value="";$("#tdPeople").value="";save();
+  db.tasks.push(t);$("#tdNew").value="";$("#tdStart").value=todayS();$("#tdDue").value="";$("#tdRep").value="";$("#tdPeople").value="";save();
 }
 function bulkEditTasks(){
   const ids=[...tdSelected],items=db.tasks.filter(t=>tdSelected.has(t.id));if(!items.length)return;
@@ -1062,6 +1074,7 @@ both("change",e=>{
   if(!t)return;
   if(id==="dPerson")t.person=v.trim().replace(/\s+/g," ");
   else if(id==="dRem")t.rem=v;
+  else if(id==="dStart")t.start=v;
   else if(id==="dDue"){t.due=v;if(!v)t.repeat="";else if(fixCustom(t))toast("Tarih, seçili tekrar günlerine göre ayarlandı.")}
   else if(id==="dRep"){t.repeat=v;if(v&&!t.due)t.due=todayS();if(v==="custom"){if(!(t.rdays&&t.rdays.length))t.rdays=[new Date(t.due+"T00:00").getDay()];t.rint=t.rint||1;fixCustom(t)}}
   else if(id==="dRTime"){t.rtime=v;fixCustom(t)}
@@ -1072,7 +1085,7 @@ both("change",e=>{
 });
 document.addEventListener("click",e=>{
   const d=e.target.dataset;
-  if(d.tc)toggleTask(d.tc);
+  if(d.tc){toggleTask(d.tc);if(document.querySelector("#gorev.on"))renderTodo(true);}
   if(d.edel){db.events=db.events.filter(x=>x.id!==d.edel);save()}
   if(d.q){$("#aiGir").value=d.q;$("#aiGonder").click()}
   if(d.nv){newsView=d.nv;haberler()}
@@ -1084,23 +1097,24 @@ const AYLAR=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağusto
 let calMode=localStorage.getItem("calMode")||"month";
 const fm=(d,o)=>d.toLocaleDateString("tr-TR",o);
 const remTxt=m=>m>=1440?"1 gün":m>=60?"1 saat":m+" dk";
-function itemsFor(k){
+function itemsFor(k,spans){
   const out=[];
   db.events.filter(e=>e.date===k).forEach(e=>out.push({ty:"e",e,time:e.time||"",id:e.id}));
   db.tasks.forEach(t=>{const rd=t.rem&&t.rem.slice(0,10);
     if(t.due===k)out.push({ty:"t",t,time:rd===k?t.rem.slice(11,16):"",id:t.id});
-    else if(rd===k)out.push({ty:"t",t,time:t.rem.slice(11,16),rem:true,id:t.id})});
+    else if(rd===k)out.push({ty:"t",t,time:t.rem.slice(11,16),rem:true,id:t.id});
+    else if(spans&&!t.repeat&&t.start&&t.due&&t.start<t.due&&k>=t.start&&k<t.due)out.push({ty:"t",t,time:"",span:true,first:k===t.start,id:t.id})});
   db.tasks.forEach(t=>{if(occursOn(t,k))out.push({ty:"t",t,time:t.repeat==="custom"?(t.rtime||""):(t.rem?t.rem.slice(11,16):""),ghost:true,id:t.id})});
   return out.sort((a,b)=>(a.time?0:1)-(b.time?0:1)||a.time.localeCompare(b.time)||((a.t&&a.t.done)?1:0)-((b.t&&b.t.done)?1:0));
 }
 function chip(it){
   if(it.ty==="e")return `<div class="ci e" data-eopen="${it.e.id}">${it.time?`<b>${it.time}</b> `:""}${esc(it.e.title)}</div>`;
-  const t=it.t;return `<div class="ci t ${t.done?"dn":""} ${it.ghost?"g":""}" data-topen="${t.id}">${it.ghost?"↻ ":""}${it.rem?"🔔 ":""}${it.time?`<b>${it.time}</b> `:""}${t.star?"★ ":""}${esc(t.title)}</div>`;
+  const t=it.t;return `<div class="ci t ${t.done?"dn":""} ${it.ghost?"g":""} ${it.span?"sp":""}" data-topen="${t.id}">${it.ghost?"↻ ":""}${it.span?(it.first?"▶ ":"⋯ "):""}${it.rem?"🔔 ":""}${it.time?`<b>${it.time}</b> `:""}${t.star?"★ ":""}${esc(t.title)}</div>`;
 }
 function card(it){
   if(it.ty==="e"){const e=it.e;return `<div class="dcard e" data-eopen="${e.id}"><div class="dtm">${e.time?e.time+(e.end?"–"+e.end:""):"Tüm gün"}</div><div class="tb"><div class="tt">${esc(e.title)}</div><div class="tm"><span>Etkinlik</span>${e.remind?`<span>🔔 ${remTxt(e.remind)} önce</span>`:""}${e.loc?`<span>📍 ${esc(e.loc)}</span>`:""}</div>${e.note?`<div class="tm">${esc(e.note.slice(0,120))}</div>`:""}</div></div>`}
   const t=it.t,s=t.steps||[];
-  return `<div class="dcard t ${t.done?"dn":""} ${it.ghost?"g":""}" data-topen="${t.id}"><div class="dtm">${it.time||"Tüm gün"}</div>${it.ghost?'<span style="width:20px;flex:none"></span>':`<button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button>`}<div class="tb"><div class="tt">${t.star?"★ ":""}${esc(t.title)}</div><div class="tm"><span>${esc(listName(t.list||"tasks"))}</span>${t.due?`<span>▦ ${dlabel(t.due)}</span>`:""}${it.rem?"<span>🔔 anımsatıcı</span>":""}${t.repeat?`<span>↻ ${esc(repSummary(t))}</span>`:""}${it.ghost?"<span>sonraki tekrar</span>":""}${t.myday===todayS()?"<span>☀ Günüm</span>":""}</div>${t.note?`<div class="tm">${esc(t.note.slice(0,120))}</div>`:""}${s.length?`<div class="stp">${s.map(x=>`<div class="${x.done?"dn":""}">${x.done?"✓":"○"} ${esc(x.t)}</div>`).join("")}</div>`:""}</div></div>`;
+  return `<div class="dcard t ${t.done?"dn":""} ${it.ghost?"g":""}" data-topen="${t.id}"><div class="dtm">${it.time||"Tüm gün"}</div>${it.ghost?'<span style="width:20px;flex:none"></span>':`<button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button>`}<div class="tb"><div class="tt">${t.star?"★ ":""}${esc(t.title)}</div><div class="tm"><span>${esc(listName(t.list||"tasks"))}</span>${t.due?`<span>▦ ${t.start&&t.start<t.due?dlabel(t.start)+" → ":""}${dlabel(t.due)}</span>`:""}${it.rem?"<span>🔔 anımsatıcı</span>":""}${t.repeat?`<span>↻ ${esc(repSummary(t))}</span>`:""}${it.ghost?"<span>sonraki tekrar</span>":""}${t.myday===todayS()?"<span>☀ Günüm</span>":""}</div>${t.note?`<div class="tm">${esc(t.note.slice(0,120))}</div>`:""}${s.length?`<div class="stp">${s.map(x=>`<div class="${x.done?"dn":""}">${x.done?"✓":"○"} ${esc(x.t)}</div>`).join("")}</div>`:""}</div></div>`;
 }
 const RH=48;let lastDay=todayS();
 function gridItems(k){
@@ -1118,7 +1132,7 @@ const blk=x=>{
 function timeGrid(days){
   const n=days.length,td=todayS(),cols=`56px repeat(${n},minmax(0,1fr))`;
   const hd=days.map(k=>{const d=new Date(k+"T00:00");return `<div class="tgc ${k===td?"td":""}"><button class="wh" data-dv="${k}">${fm(d,{weekday:"short"})} <b>${d.getDate()}</b></button></div>`}).join("");
-  const ad=days.map(k=>`<div class="tga" data-d="${k}">${itemsFor(k).filter(x=>!x.time).map(chip).join("")}</div>`).join("");
+  const ad=days.map(k=>`<div class="tga" data-d="${k}">${itemsFor(k,true).filter(x=>!x.time).map(chip).join("")}</div>`).join("");
   const hrs=Array.from({length:24},(_,h)=>`<div class="hl">${String(h).padStart(2,"0")}:00</div>`).join("");
   const dc=days.map(k=>`<div class="dcol ${k===td?"tdc":""}" data-d="${k}">${Array.from({length:24},(_,h)=>`<div class="hs" data-h="${h}" data-d="${k}"></div>`).join("")}${gridItems(k).map(blk).join("")}${k===td?'<div class="nowline"></div>':""}</div>`).join("");
   return `<div class="tg ${n>1?"w":""}"><div class="tg-top" style="grid-template-columns:${cols}"><div></div>${hd}<div class="tga-l">Tüm gün</div>${ad}</div><div class="tg-body" style="grid-template-columns:${cols}"><div class="tg-h">${hrs}<div class="nowlbl"></div></div>${dc}</div></div>`;
@@ -1139,8 +1153,8 @@ function drawCal(){
     c.className="cal";$("#ayBaslik").textContent=AYLAR[sd.getMonth()]+" "+sd.getFullYear();
     const first=new Date(sd.getFullYear(),sd.getMonth(),1),start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
     let h=["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"].map(d=>`<div class="h">${d}</div>`).join("");
-    for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d),its=itemsFor(k);
-      h+=`<div class="mc ${d.getMonth()!==sd.getMonth()?"o ":""}${k===td?"td ":""}${k===sel?"sel":""}" data-d="${k}" role="button" tabindex="0" aria-label="${fm(d,{day:"numeric",month:"long"})}"><span class="dn2">${d.getDate()}</span><div class="cs">${its.slice(0,3).map(chip).join("")}${its.length>3?`<span class="more">+${its.length-3} daha</span>`:""}</div></div>`}
+    for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=iso(d),its=itemsFor(k,true);
+      const visible=[...its.filter(x=>x.ty==="e"),...its.filter(x=>x.ty!=="e")].slice(0,3);h+=`<div class="mc ${d.getMonth()!==sd.getMonth()?"o ":""}${k===td?"td ":""}${k===sel?"sel":""}" data-d="${k}" role="button" tabindex="0" aria-label="${fm(d,{day:"numeric",month:"long"})}"><span class="dn2">${d.getDate()}</span><div class="cs">${visible.map(chip).join("")}${its.length>3?`<span class="more">+${its.length-3} daha</span>`:""}</div></div>`}
     c.innerHTML=h;
   }else if(calMode==="week"){
     c.className="";const st=new Date(sd);st.setDate(st.getDate()-((st.getDay()+6)%7));const en=new Date(st);en.setDate(en.getDate()+6);
@@ -1153,7 +1167,7 @@ function drawCal(){
   const g=c.querySelector(".tg");if(g)g.scrollTop=sc!=null?sc:Math.max(0,(new Date().getHours()-1)*RH);
   updateNow();
   $("#gunBaslik").textContent=fm(sd,{day:"numeric",month:"long",weekday:"long"});
-  $("#gunListe").innerHTML=itemsFor(sel).map(card).join("")||'<div class="empty">Bu gün için kayıt yok. Aşağıdan etkinlik ekleyebilirsin.</div>';
+  $("#gunListe").innerHTML=itemsFor(sel,true).map(card).join("")||'<div class="empty">Bu gün için kayıt yok. Aşağıdan etkinlik ekleyebilirsin.</div>';
 }
 function setMode(m){calMode=m;localStorage.setItem("calMode",m);drawCal()}
 function nav(n){
@@ -1176,6 +1190,17 @@ function calClick(e){
 $("#cal").addEventListener("click",calClick);$("#gunListe").addEventListener("click",calClick);
 $("#cal").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.dataset.d){sel=e.target.dataset.d;drawCal()}});
 $("#eEkle").onclick=()=>{const v=$("#eBaslik").value.trim();if(!v)return toast("Önce etkinlik adını yaz.");db.events.push({id:uid(),title:v,date:sel,time:$("#eSaat").value,remind:+$("#eHat").value});$("#eBaslik").value="";save()};
+
+let calTab="calendar";
+function setCalTab(tab){calTab=tab;$("#calPane").hidden=tab!=="calendar";$("#calEventsPane").hidden=tab!=="events";$$("[data-caltab]").forEach(b=>b.classList.toggle("on",b.dataset.caltab===tab));if(tab==="events")drawCalEvents()}
+function drawCalEvents(){
+  const events=[...db.events].sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.time||"").localeCompare(b.time||""));
+  $("#calEventCount").textContent=events.length?`(${events.length})`:"";
+  $("#calEventList").innerHTML=events.map(e=>{const d=e.date?new Date(e.date+"T00:00"):null;return `<div class="cal-evrow" data-eopen="${e.id}"><span class="cal-evtag"></span><span class="cal-evdate">${d?`<b>${d.getDate()}</b>${AYLAR[d.getMonth()].slice(0,3)}`:"Tarihsiz"}</span><span class="cal-evinfo"><strong>${esc(e.title)}</strong><small>${d?fm(d,{weekday:"long",year:"numeric"}):""}${e.time?" · "+e.time:" · Tüm gün"}${e.loc?" · "+esc(e.loc):""}</small></span><span class="tag">Düzenle ›</span></div>`}).join("")||'<div class="empty">Henüz etkinlik yok. Dashboard veya yapay zekâ üzerinden oluşturduğun etkinlikler de burada görünecek.</div>';
+}
+$$("[data-caltab]").forEach(b=>b.onclick=()=>setCalTab(b.dataset.caltab));
+$("#calNewEvent").onclick=()=>openNew("event",{date:todayS()});
+$("#calEventList").addEventListener("click",e=>{const row=e.target.closest("[data-eopen]");if(row)openEvent(row.dataset.eopen)});
 
 /* açılır pencere (görev / etkinlik yönetimi) */
 function evForm(e){return `<div class="td mtd"><div class="dtop"><button class="x" data-close>✕ Kapat</button></div><div class="dh"><input type="text" id="evTitle" value="${esc(e.title)}" aria-label="Etkinlik adı"></div><div class="dc"><label class="dr">▦ Tarih<input type="date" id="evDate" value="${esc(e.date)}"></label><label class="dr">⏰ Saat<input type="time" id="evTime" value="${esc(e.time||"")}"></label><label class="dr">⏱ Bitiş<input type="time" id="evEnd" value="${esc(e.end||"")}"></label><label class="dr">📍 Yer<input type="text" id="evLoc" value="${esc(e.loc||"")}" placeholder="Konum / bağlantı"></label><label class="dr">🔔 Hatırlatma<select id="evRem">${NWREM.map(x=>`<option value="${x[0]}" ${(e.remind||0)===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select></label></div><div class="dc"><textarea id="evNote" placeholder="Not ekle" style="min-height:80px">${esc(e.note||"")}</textarea></div><div class="df"><span>Etkinlik</span><button class="x" data-evdel="${e.id}">Etkinliği sil</button></div></div>`}
@@ -1422,6 +1447,9 @@ function pTable(rows){
 <td class="dl"><button class="x" data-pdel="${q.id}" aria-label="Projeyi sil">×</button></td></tr>`}).join("");
   return `<div class="pwrap"><table class="pt"><thead><tr><th class="pn">#</th>${th}<th></th></tr></thead><tbody>${body||`<tr><td colspan="${PC.length+2}" class="empty" style="padding:14px">${db.projects.length?"Filtreyle eşleşen proje yok.":"Henüz proje yok. Yukarıdan ekleyebilirsin."}</td></tr>`}</tbody></table></div>`;
 }
+const P_COLORS=["#4285F4","#EA4335","#34A853","#FBBC04","#9C27B0","#00ACC1","#FF7043","#7E57C2","#8D6E63","#EC407A","#78909C","#9E9D24"];
+function pColor(q){if(q&&q.color)return q.color;const id=String(q?.id||"");let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))>>>0;return P_COLORS[h%P_COLORS.length]}
+function pNextColor(){const counts=P_COLORS.map(c=>db.projects.filter(q=>q.color===c).length);return P_COLORS[counts.indexOf(Math.min(...counts))]}
 function pGantt(rows){
   const items=[];
   rows.forEach(q=>{
@@ -1433,7 +1461,8 @@ function pGantt(rows){
   items.forEach(it=>{const x=it.type==="parent"?it.q:it.sp;if(dN(x.start)!=null&&dN(x.end)!=null)dates.push([dN(x.start),dN(x.end)]);});
   if(!dates.length)return '<div class="empty">Gantt için ana proje veya alt projelere başlangıç ve bitiş tarihi gir.</div>';
   const ppd=+localStorage.getItem("pScale")||12,td=dN(todayS()),LW=220;
-  const mn=Math.min(td,...dates.map(x=>x[0]))-7,mx=Math.max(td,...dates.map(x=>x[1]))+14,W=(mx-mn+1)*ppd;
+  const lo=dFN(Math.min(td,...dates.map(x=>x[0]))),hi=dFN(Math.max(td,...dates.map(x=>x[1])));
+  const mn=Math.floor(Date.UTC(lo.getUTCFullYear(),lo.getUTCMonth()-3,1)/864e5),mx=Math.floor(Date.UTC(hi.getUTCFullYear(),hi.getUTCMonth()+4,1)/864e5)-1,W=(mx-mn+1)*ppd;
   let mh="";for(let d=mn;d<=mx;){const dt=dFN(d),y=dt.getUTCFullYear(),m=dt.getUTCMonth(),e=Math.min(Math.floor(Date.UTC(y,m+1,1)/864e5)-1,mx),w=(e-d+1)*ppd;mh+=`<div class="gt-m" style="width:${w}px">${w>70?AYLAR[m]+" "+y:AYLAR[m].slice(0,3)}</div>`;d=e+1}
   let tk="";const off=(7-((dFN(mn).getUTCDay()+6)%7))%7;
   if(ppd>=24){for(let d=mn;d<=mx;d++)tk+=`<div class="gt-d" style="left:${(d-mn)*ppd}px">${dFN(d).getUTCDate()}</div>`}
@@ -1444,17 +1473,27 @@ function pGantt(rows){
     const pr=x.prog||0,late=has&&!x.done&&b<td,cls=x.done?"dn":late?"late":"";
     const label=sub?x.name||"(adsız alt proje)":x.name||"(adsız proje)";
     const client=sub?"↳ Alt proje · "+(it.q.name||""):(it.q.client||"");
-    const bar=has?`<div class="gt-b ${cls}" style="left:${(a-mn)*ppd}px;width:${(Math.max(b,a)-a+1)*ppd}px" title="${esc(label)}: ${fD(x.start)} → ${fD(x.end)} · %${pr}"><i style="width:${pr}%"></i></div><span class="gt-p" style="left:${(b-mn+1)*ppd+6}px">${pr}%</span>`:"";
+    const bar=has?`<div class="gt-b ${cls}" style="--pc:${pColor(it.q)};left:${(a-mn)*ppd}px;width:${(Math.max(b,a)-a+1)*ppd}px" title="${esc(label)}: ${fD(x.start)} → ${fD(x.end)} · %${pr}"><i style="width:${pr}%"></i></div><span class="gt-p" style="left:${(b-mn+1)*ppd+6}px">${pr}%</span>`:"";
     return `<div class="gt-r ${sub?"p-subrow":""}" data-pid="${it.q.id}" ${sub?`data-subid="${x.id}"`:""}><div class="gt-l" title="${esc(label)}"><b>${sub?"↳ ":""}${x.done?"✓ ":""}${esc(label)}</b><span class="tag">${esc(client)}</span></div><div class="gt-t" style="width:${W}px;${grid}">${bar}</div></div>`;
   }).join("");
   return `<div class="gt" id="pGt" data-today="${LW+(td-mn)*ppd}"><div class="gt-in" style="width:${LW+W}px"><div class="gt-h"><div class="gt-l">Proje / Alt proje</div><div class="gt-t" style="width:${W}px"><div class="gt-mr">${mh}</div><div class="gt-dr">${tk}</div></div></div>${r}<div class="gt-now" style="left:${LW+(td-mn)*ppd+ppd/2}px"></div></div></div>`;
 }
 function pCalendar(rows){
-  const y=pCalMonth.getFullYear(),m=pCalMonth.getMonth(),first=new Date(y,m,1),start=new Date(y,m,1-((first.getDay()+6)%7)),days=[];
-  const entries=[];rows.forEach(q=>{if(q.start&&q.end)entries.push({id:q.id,name:q.name||"Adsız proje",start:q.start,end:q.end,sub:false,done:q.done});(q.subprojects||[]).forEach(sp=>{if(sp.start&&sp.end)entries.push({id:sp.id,parent:q.id,name:sp.name||"Adsız alt proje",start:sp.start,end:sp.end,sub:true,done:sp.done})})});
-  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const key=iso(d),inside=d.getMonth()===m,active=entries.filter(x=>x.start<=key&&x.end>=key);
-    days.push(`<div class="pc-day ${inside?'':'out'} ${key===todayS()?'today':''}"><div class="pc-num">${d.getDate()}</div>${active.slice(0,4).map(x=>`<div class="pc-item ${x.sub?'sub':''} ${x.done?'done':''}" title="${esc(x.name)} · ${fD(x.start)} – ${fD(x.end)}">${x.sub?'↳ ':''}${esc(x.name)}</div>`).join('')}${active.length>4?`<small>+${active.length-4} proje</small>`:''}</div>`);}
-  return `<div class="pc-head"><button class="btn g" data-pcal="prev" aria-label="Önceki ay">‹</button><b>${AYLAR[m]} ${y}</b><button class="btn g" data-pcal="next" aria-label="Sonraki ay">›</button><button class="btn g" data-pcal="today">Bugün</button></div><div class="pc-grid">${['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map(x=>`<div class="pc-wd">${x}</div>`).join('')}${days.join('')}</div><p class="tag">Renkli satırlar, ilgili tarihte devam eden ana projeleri ve alt projeleri gösterir. Proje tarihlerini Proje takip veya Alt proje planlama alanından düzenleyebilirsin.</p>`;
+  const y=pCalMonth.getFullYear(),m=pCalMonth.getMonth(),first=new Date(y,m,1),start=new Date(y,m,1-((first.getDay()+6)%7)),tdk=todayS();
+  const entries=[];rows.forEach(q=>{if(q.start&&q.end)entries.push({name:q.name||"Adsız proje",start:q.start,end:q.end<q.start?q.start:q.end,sub:false,done:q.done,color:pColor(q)});(q.subprojects||[]).forEach(sp=>{if(sp.start&&sp.end)entries.push({name:sp.name||"Adsız alt proje",start:sp.start,end:sp.end<sp.start?sp.start:sp.end,sub:true,done:sp.done,color:pColor(q)})})});
+  entries.sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:(a.end<b.end?1:a.end>b.end?-1:0));
+  const MAXL=6;let weeks="";
+  for(let w=0;w<6;w++){
+    const keys=[],ds=[];for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+w*7+i);ds.push(d);keys.push(iso(d))}
+    const segs=[];entries.forEach(x=>{if(x.start>keys[6]||x.end<keys[0])return;let a=0,b=6;while(a<6&&keys[a]<x.start)a++;while(b>0&&keys[b]>x.end)b--;segs.push({x,a,b,l:x.start>=keys[0],r:x.end<=keys[6]})});
+    const lanes=[];segs.forEach(g=>{let L=0;while(lanes[L]&&lanes[L]>=g.a)L++;lanes[L]=g.b;g.L=L});
+    const used=Math.min(lanes.length,MAXL),hid=Array(7).fill(0);
+    const bars=segs.map(g=>{if(g.L>=MAXL){for(let i=g.a;i<=g.b;i++)hid[i]++;return""}const x=g.x;
+      return `<div class="pc-bar ${x.sub?"sub":""} ${x.done?"done":""} ${g.l?"cl":""} ${g.r?"cr":""}" style="--pc:${x.color};left:${g.a*100/7}%;width:${(g.b-g.a+1)*100/7}%;top:calc(var(--pcn) + ${g.L} * var(--pcl))" title="${esc(x.name)} · ${fD(x.start)} – ${fD(x.end)}"><span>${x.sub?"↳ ":""}${esc(x.name)}</span></div>`}).join("");
+    const cells=ds.map((d,i)=>`<div class="pc-day ${d.getMonth()===m?"":"out"} ${keys[i]===tdk?"today":""}"><div class="pc-num">${d.getDate()}</div>${hid[i]?`<small>+${hid[i]} proje</small>`:""}</div>`).join("");
+    weeks+=`<div class="pc-wk pc-wr" style="--lanes:${used}">${cells}${bars}</div>`;
+  }
+  return `<div class="pc-head"><button class="btn g" data-pcal="prev" aria-label="Önceki ay">‹</button><b>${AYLAR[m]} ${y}</b><button class="btn g" data-pcal="next" aria-label="Sonraki ay">›</button><button class="btn g" data-pcal="today">Bugün</button></div><div class="pc-grid"><div class="pc-wk">${['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map(x=>`<div class="pc-wd">${x}</div>`).join('')}</div>${weeks}</div><p class="tag">Renkli çubuklar, projelerin başlangıçtan bitişe kadar süren aralığını gösterir (hafta sonunda bir sonraki satırda devam eder). Proje tarihlerini Proje takip veya Alt proje planlama alanından düzenleyebilirsin.</p>`;
 }
 function pSubListHtml(){
   const all=[];db.projects.forEach(q=>(q.subprojects||[]).forEach(sp=>all.push({q,sp})));
@@ -1492,7 +1531,7 @@ function pAdd(){
   const n=$("#pNN").value.trim(),c=$("#pNC").value.trim();if(!n&&!c)return toast("Proje adı veya müşteri yaz.");
   let st=$("#pNS").value||todayS(),en=$("#pNE").value;if(!en){const d=new Date(st+"T00:00");d.setDate(d.getDate()+30);en=iso(d)}
   if(dN(en)<dN(st))return toast("Bitiş tarihi başlangıçtan önce olamaz.");
-  db.projects.push({id:uid(),client:c,name:n,start:st,end:en,prog:0,done:false,created:Date.now()});$("#pNN").value="";save();
+  db.projects.push({id:uid(),client:c,name:n,start:st,end:en,prog:0,done:false,color:pNextColor(),created:Date.now()});$("#pNN").value="";save();
 }
 function pSubAdd(){
   const pid=$("#pSubParent").value,name=$("#pSubName").value.trim(),start=$("#pSubStart").value,end=$("#pSubEnd").value;
@@ -1513,6 +1552,7 @@ $("#proje").addEventListener("click",e=>{
   else if(t.id==="pSubAdd")pSubAdd();
   else if(x=c("[data-psdel]")){const [pid,sid]=x.dataset.psdel.split(":");const q=db.projects.find(y=>y.id===pid);if(q&&confirm("Bu alt proje silinsin mi?")){q.subprojects=(q.subprojects||[]).filter(z=>z.id!==sid);save()}}
   else if(t.id==="pClearAll"){pHid={};pClose();renderProj()}
+  else if(t.id==="pBack3"||t.id==="pFwd3"){const g=$("#pGt");if(g){const ppd=+localStorage.getItem("pScale")||12;g.scrollBy({left:(t.id==="pFwd3"?1:-1)*91*ppd,behavior:"smooth"})}}
   else if(t.id==="pToday"){const g=$("#pGt");if(g)g.scrollLeft=Math.max(0,+g.dataset.today-300)}
   else if(t.id==="pCsv"){
     const q=s=>'"'+String(s).replace(/"/g,'""')+'"',rows=pRows();
@@ -1662,6 +1702,7 @@ function render(){
   gpRender();
   renderTodo();renderModal();
   drawCal();
+  drawCalEvents();
 }
 
 
@@ -1726,7 +1767,7 @@ $("#at-smart").addEventListener("click",e=>{
       if(a.type==="event"){db.events.push({id:uid(),title:String(a.title||"Etkinlik"),date:okD(a.date)?a.date:todayS(),time:/^\d\d:\d\d$/.test(a.time||"")?a.time:"",remind:+a.remind||0});n++}
       else if(a.type==="note"){db.notes.unshift({id:uid(),title:String(a.title||"Not"),type:"page",html:"<div>"+esc(a.text||"").replace(/\n/g,"</div><div>")+"</div>",bg:"lined",lines:[]});n++}
       else{const l=db.lists.find(x=>x.name.toLowerCase()===String(a.list||"").toLowerCase()),due=okD(a.due)?a.due:"";
-        db.tasks.push({id:uid(),title:String(a.title),list:l?l.id:"tasks",person:String(a.person||"").trim(),due,rem:okR(a.rem)?a.rem:"",repeat:"",done:false,star:!!a.star,steps:[],note:String(a.note||""),myday:due===todayS()?todayS():"",created:Date.now()});n++}});
+        db.tasks.push({id:uid(),title:String(a.title),list:l?l.id:"tasks",person:String(a.person||"").trim(),start:todayS(),due,rem:okR(a.rem)?a.rem:"",repeat:"",done:false,star:!!a.star,steps:[],note:String(a.note||""),myday:due===todayS()?todayS():"",created:Date.now()});n++}});
     if(!n)return toast("Hiçbir işlem seçilmedi.");
     smActs=[];$("#smOut").innerHTML=`<div class="empty">✓ ${n} öğe eklendi. Görevler, Takvim ve Notlar'dan görebilirsin.</div>`;save();
   }});
@@ -2050,7 +2091,7 @@ function cxDayMenu(k,h){
   return [
     {t:"Görev ekle…"+(hh?" ("+hh+")":""),i:"☑",fn:()=>openNew("task",{date:k,time:hh})},
     {t:"Etkinlik ekle…"+(hh?" ("+hh+")":""),i:"＋",fn:()=>openNew("event",{date:k,time:hh})},
-    {t:"Hızlı görev (yalnızca ad)",i:"✎",fn:()=>{const v=(prompt("Görev adı:")||"").trim();if(!v)return;db.tasks.push({id:uid(),title:v,list:"tasks",person:"",due:k,rem:"",repeat:"",done:false,star:false,steps:[],note:"",myday:"",created:Date.now()});sel=k;save();toast("Görev eklendi.")}},
+    {t:"Hızlı görev (yalnızca ad)",i:"✎",fn:()=>{const v=(prompt("Görev adı:")||"").trim();if(!v)return;db.tasks.push({id:uid(),title:v,list:"tasks",person:"",start:todayS(),due:k,rem:"",repeat:"",done:false,star:false,steps:[],note:"",myday:"",created:Date.now()});sel=k;save();toast("Görev eklendi.")}},
     "-",
     {t:"Günlük görünümde aç",i:"▤",fn:()=>{sel=k;setMode("day")}},
     {t:"Bugüne git",i:"◉",fn:()=>{sel=todayS();drawCal()}}
@@ -2600,7 +2641,7 @@ const nwGet=id=>{const e=document.getElementById(id);return e?(e.type==="checkbo
 function nwCollect(){
   if(!nw)return;const g=(k,id)=>{const v=nwGet(id);if(v!==undefined)nw[k]=v};
   g("title","nwTitle");g("note","nwNote");
-  if(nw.kind==="task"){g("due","nwDue");g("rem","nwRem");g("rep","nwRep");g("list","nwList");g("person","nwPer");g("star","nwStar");g("my","nwMy");g("steps","nwSteps");g("rtime","nwRTime");g("rint","nwRInt")}
+  if(nw.kind==="task"){g("start","nwStart");g("due","nwDue");g("rem","nwRem");g("rep","nwRep");g("list","nwList");g("person","nwPer");g("star","nwStar");g("my","nwMy");g("steps","nwSteps");g("rtime","nwRTime");g("rint","nwRInt")}
   else{g("date","nwDate");g("time","nwTime");g("end","nwEnd");g("loc","nwLoc");g("remind","nwRemind")}
 }
 function nwRender(){
@@ -2610,7 +2651,7 @@ function nwRender(){
   let body;
   if(t){
     const cu=n.rep==="custom"?`<div class="dc"><div class="dr" style="flex-direction:column;align-items:flex-start;gap:8px"><span>Tekrar günleri</span><div class="row" style="gap:4px">${[1,2,3,4,5,6,0].map(x=>`<button type="button" class="chip ${ds.includes(x)?"on":""}" data-nwd="${x}">${DN[x]}</button>`).join("")}</div></div><label class="dr">⏰ Saat<input type="time" id="nwRTime" value="${esc(n.rtime||"")}"></label><label class="dr">↻ Sıklık<select id="nwRInt">${[1,2,3,4].map(k=>`<option value="${k}" ${(+n.rint||1)===k?"selected":""}>${k===1?"Her hafta":k+" haftada bir"}</option>`).join("")}</select></label></div>`:"";
-    body=`<div class="dc"><label class="dr">▦ Bitiş tarihi<input type="date" id="nwDue" value="${esc(n.due)}"></label><label class="dr">🔔 Anımsat<input type="datetime-local" id="nwRem" value="${esc(n.rem)}"></label><label class="dr">↻ Tekrarla<select id="nwRep">${Object.entries(REPS).map(([k,v])=>`<option value="${k}" ${n.rep===k?"selected":""}>${v}</option>`).join("")}</select></label></div>${cu}<div class="dc"><label class="dr">☰ Liste<select id="nwList">${[TL[4],...db.lists.map(l=>[l.id,l.name])].map(x=>`<option value="${x[0]}" ${n.list===x[0]?"selected":""}>${esc(x[1])}</option>`).join("")}</select></label><label class="dr">👤 Kişi<input type="text" id="nwPer" list="ppl" value="${esc(n.person)}" placeholder="Ad Soyad" autocomplete="off"></label>${typeof pplList==="function"?pplList():""}<label class="dr">★ Önemli<input type="checkbox" id="nwStar" ${n.star?"checked":""}></label><label class="dr">☀ Günüm'e ekle<input type="checkbox" id="nwMy" ${n.my?"checked":""}></label></div><div class="dc"><textarea id="nwSteps" placeholder="Adımlar (her satıra bir adım)" style="min-height:70px">${esc(n.steps)}</textarea></div><div class="dc"><textarea id="nwNote" placeholder="Not ekle" style="min-height:70px">${esc(n.note)}</textarea></div>`;
+    body=`<div class="dc"><label class="dr">▶ Başlangıç tarihi<input type="date" id="nwStart" value="${esc(n.start||"")}"></label><label class="dr">▦ Bitiş tarihi<input type="date" id="nwDue" value="${esc(n.due)}"></label><label class="dr">🔔 Anımsat<input type="datetime-local" id="nwRem" value="${esc(n.rem)}"></label><label class="dr">↻ Tekrarla<select id="nwRep">${Object.entries(REPS).map(([k,v])=>`<option value="${k}" ${n.rep===k?"selected":""}>${v}</option>`).join("")}</select></label></div>${cu}<div class="dc"><label class="dr">☰ Liste<select id="nwList">${[TL[4],...db.lists.map(l=>[l.id,l.name])].map(x=>`<option value="${x[0]}" ${n.list===x[0]?"selected":""}>${esc(x[1])}</option>`).join("")}</select></label><label class="dr">👤 Kişi<input type="text" id="nwPer" list="ppl" value="${esc(n.person)}" placeholder="Ad Soyad" autocomplete="off"></label>${typeof pplList==="function"?pplList():""}<label class="dr">★ Önemli<input type="checkbox" id="nwStar" ${n.star?"checked":""}></label><label class="dr">☀ Günüm'e ekle<input type="checkbox" id="nwMy" ${n.my?"checked":""}></label></div><div class="dc"><textarea id="nwSteps" placeholder="Adımlar (her satıra bir adım)" style="min-height:70px">${esc(n.steps)}</textarea></div><div class="dc"><textarea id="nwNote" placeholder="Not ekle" style="min-height:70px">${esc(n.note)}</textarea></div>`;
   }else{
     body=`<div class="dc"><label class="dr">▦ Tarih<input type="date" id="nwDate" value="${esc(n.date)}"></label><label class="dr">⏰ Başlangıç<input type="time" id="nwTime" value="${esc(n.time)}"></label><label class="dr">⏱ Bitiş<input type="time" id="nwEnd" value="${esc(n.end)}"></label><label class="dr">📍 Yer<input type="text" id="nwLoc" value="${esc(n.loc)}" placeholder="Konum / bağlantı" autocomplete="off"></label><label class="dr">🔔 Hatırlatma<select id="nwRemind">${NWREM.map(x=>`<option value="${x[0]}" ${(+n.remind||0)===x[0]?"selected":""}>${x[1]}</option>`).join("")}</select></label></div><div class="dc"><textarea id="nwNote" placeholder="Not ekle" style="min-height:90px">${esc(n.note)}</textarea></div>`;
   }
@@ -2618,7 +2659,7 @@ function nwRender(){
 }
 function openNew(kind,o){
   o=o||{};const date=o.date||sel||todayS(),d=new Date(date+"T00:00");
-  nw={kind,title:"",note:"",due:date,rem:(kind==="task"&&o.time)?date+"T"+o.time:"",rep:"",list:"tasks",person:"",star:false,my:false,steps:"",rdays:[d.getDay()],rtime:"",rint:1,date,time:o.time||"",end:"",loc:"",remind:10};
+  nw={kind,title:"",note:"",start:todayS(),due:date,rem:(kind==="task"&&o.time)?date+"T"+o.time:"",rep:"",list:"tasks",person:"",star:false,my:false,steps:"",rdays:[d.getDay()],rtime:"",rint:1,date,time:o.time||"",end:"",loc:"",remind:10};
   nwRender();nwEl.hidden=false;const i=$("#nwTitle");if(i)i.focus();
 }
 function nwClose(){nw=null;nwEl.hidden=true}
@@ -2626,7 +2667,7 @@ function nwSubmit(){
   nwCollect();const n=nw;if(!n)return;const err=m=>{const e=$("#nwErr");if(e)e.textContent=m},title=(n.title||"").trim();
   if(!title){err("Önce bir ad yaz.");const i=$("#nwTitle");if(i)i.focus();return}
   if(n.kind==="task"){
-    const t={id:uid(),title,list:n.list||"tasks",person:(n.person||"").trim(),due:n.due||"",rem:n.rem||"",repeat:n.rep||"",done:false,star:!!n.star,steps:(n.steps||"").split("\n").map(x=>x.trim()).filter(Boolean).map(x=>({id:uid(),t:x,done:false})),note:(n.note||"").trim(),myday:n.my?todayS():"",created:Date.now()};
+    const t={id:uid(),title,list:n.list||"tasks",person:(n.person||"").trim(),start:n.start||"",due:n.due||"",rem:n.rem||"",repeat:n.rep||"",done:false,star:!!n.star,steps:(n.steps||"").split("\n").map(x=>x.trim()).filter(Boolean).map(x=>({id:uid(),t:x,done:false})),note:(n.note||"").trim(),myday:n.my?todayS():"",created:Date.now()};
     if(t.repeat&&!t.due)t.due=todayS();
     if(t.repeat==="custom"){t.rdays=[...(n.rdays||[])];t.rint=+n.rint||1;t.rtime=n.rtime||"";if(!t.rdays.length)t.rdays=[new Date((t.due||todayS())+"T00:00").getDay()];fixCustom(t)}
     db.tasks.push(t);if(t.due)sel=t.due;
@@ -2738,7 +2779,7 @@ var WXR={
     return wxH("Geri sayım")+(l.map(c=>{const d=Math.round((new Date(c.date+"T00:00")-t0)/864e5);return `<div class="wx-row"><span class="wx-t">${esc(c.name)}<small>${fm(new Date(c.date+"T00:00"),{day:"numeric",month:"short",year:"numeric"})}</small></span><b class="${d<0?"wx-past":""}">${d===0?"Bugün":d>0?d+" gün":Math.abs(d)+" gün önce"}</b><button class="x" data-wx="cdel" data-id="${c.id}" aria-label="Sil">×</button></div>`}).join("")||'<div class="empty">Henüz geri sayım yok.</div>')+`<div class="wx-add"><input type="text" id="wcN" placeholder="Ad" aria-label="Ad"><input type="date" id="wcD" aria-label="Tarih"><button class="btn g" data-wx="cadd">Ekle</button></div>`},
   wmini:()=>{const n=new Date(),b=wxM||(wxM=new Date(n.getFullYear(),n.getMonth(),1)),td=todayS(),s0=new Date(b);s0.setDate(1-((b.getDay()+6)%7));
     let h=["P","S","Ç","P","C","C","P"].map(x=>`<b class="wx-h">${x}</b>`).join("");
-    for(let i=0;i<42;i++){const d=new Date(s0);d.setDate(s0.getDate()+i);const k=iso(d);h+=`<button class="wx-d ${d.getMonth()!==b.getMonth()?"o":""} ${k===td?"t":""} ${itemsFor(k).length?"h":""}" data-wx="mini" data-k="${k}" aria-label="${k}">${d.getDate()}</button>`}
+    for(let i=0;i<42;i++){const d=new Date(s0);d.setDate(s0.getDate()+i);const k=iso(d);h+=`<button class="wx-d ${d.getMonth()!==b.getMonth()?"o":""} ${k===td?"t":""} ${itemsFor(k,true).length?"h":""}" data-wx="mini" data-k="${k}" aria-label="${k}">${d.getDate()}</button>`}
     return wxH(AYLAR[b.getMonth()]+" "+b.getFullYear(),`<span><button class="d-lnk" data-wx="mprev" aria-label="Önceki ay">‹</button><button class="d-lnk" data-wx="mtoday">Bugün</button><button class="d-lnk" data-wx="mnext" aria-label="Sonraki ay">›</button></span>`)+`<div class="wx-mg">${h}</div>`},
   wprio:()=>{const td=todayS(),od=t=>t.due&&t.due<td?1:0,l=db.tasks.filter(t=>!t.done&&(t.star||od(t))).sort((a,b)=>od(b)-od(a)||(a.due||"9").localeCompare(b.due||"9")).slice(0,6);
     return wxH("Öncelikli görevler",`<span class="d-n">${l.length}</span>`)+(l.map(t=>`<div class="d-trow" data-topen="${t.id}"><button class="circ" data-tc="${t.id}" aria-label="Tamamla"></button><div class="tb"><div class="tt">${esc(t.title)}</div><div class="d-s">${t.due?(t.due<td?"Gecikti · ":"")+dlabel(t.due):esc(listName(t.list||"tasks"))}</div></div>${paBadge(t.person)}${t.star?'<span class="d-star">★</span>':""}</div>`).join("")||'<div class="empty">Önemli veya geciken görev yok.</div>')},
@@ -2955,7 +2996,7 @@ $("#nEd").addEventListener("click",e=>{
   const n=cur(),b=e.target.closest&&e.target.closest("[data-mx]");if(!n||n.type!=="meet"||!b)return;const m=n.m,a=b.dataset.mx;
   if(a==="aadd"){(m.actions=m.actions||[]).push({t:"",who:"",due:"",sent:false});save(true);renderNotes();const l=[...$("#nEd").querySelectorAll('[data-maf="t"]')].pop();if(l)l.focus()}
   else if(a==="adel"){m.actions.splice(+b.dataset.i,1);save(true);renderNotes()}
-  else if(a==="task"){let k=0;(m.actions||[]).forEach(x=>{if((x.t||"").trim()&&!x.sent){db.tasks.push({id:uid(),title:x.t.trim(),list:"tasks",person:(x.who||"").trim(),due:x.due||"",rem:"",repeat:"",done:false,star:false,steps:[],note:"Toplantı: "+(n.title||"Toplantı notu")+(m.date?" ("+m.date+")":""),myday:"",created:Date.now()});x.sent=true;k++}});save();renderNotes();toast(k?k+" görev oluşturuldu.":"Göreve çevrilecek yeni aksiyon yok.")}
+  else if(a==="task"){let k=0;(m.actions||[]).forEach(x=>{if((x.t||"").trim()&&!x.sent){db.tasks.push({id:uid(),title:x.t.trim(),list:"tasks",person:(x.who||"").trim(),start:todayS(),due:x.due||"",rem:"",repeat:"",done:false,star:false,steps:[],note:"Toplantı: "+(n.title||"Toplantı notu")+(m.date?" ("+m.date+")":""),myday:"",created:Date.now()});x.sent=true;k++}});save();renderNotes();toast(k?k+" görev oluşturuldu.":"Göreve çevrilecek yeni aksiyon yok.")}
   else if(a==="event"){if(!m.date)return toast("Önce toplantı tarihini seç.");db.events.push({id:uid(),title:n.title||"Toplantı",date:m.date,time:m.time||"",end:m.end||"",loc:m.place||"",note:m.people?"Katılımcılar: "+m.people.replace(/\n/g,", "):"",remind:15});sel=m.date;save();toast("Etkinlik takvime eklendi.")}
   else if(a==="pdf")printSheet(meetSheet(n),(n.title||"Toplantı notu")+" "+(m.date||todayS()));
 });
