@@ -88,6 +88,7 @@ main:has(#gorev.on){max-width:1240px}
 .addbar{display:flex;gap:8px;align-items:center;background:color-mix(in srgb,var(--acc) 9%,var(--panel));border-radius:6px;padding:4px 10px;margin-bottom:12px}
 .addbar .pl{color:var(--acc);font-size:20px}
 .task-add-btn{flex:0 0 auto;border:0;border-radius:7px;background:var(--acc);color:var(--acc-ink);font-weight:600;padding:10px 13px;min-height:40px;cursor:pointer;white-space:nowrap}.task-add-btn:active{transform:scale(.97)}
+.bulkbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:9px;margin:8px 0;background:color-mix(in srgb,var(--acc) 9%,var(--panel));border:1px solid var(--line);border-radius:8px}.bulkbar .tag{margin-right:auto}.bulkbar button{min-height:36px}.task-pick{width:22px;height:22px;flex:none;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--acc);display:grid;place-items:center;cursor:pointer}.task-pick.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}.tr.multi-selected{outline:2px solid var(--acc);outline-offset:-2px;background:color-mix(in srgb,var(--acc) 9%,var(--panel))}.tr.multi-mode{gap:8px}
 @media(max-width:720px){.addbar{display:flex;flex-wrap:wrap;gap:7px;padding:9px}.addbar .pl{display:none}.addbar #tdNew{flex:1 1 calc(100% - 120px);min-width:0}.task-add-btn{flex:0 0 auto}.addbar input:not([type=text]),.addbar select{flex:1 1 30%;max-width:none;min-width:0;min-height:38px}}
 .addbar input[type=text]{flex:1;background:transparent;border:0;padding:10px 4px}
 .addbar input,.addbar select{font-size:13px}
@@ -820,6 +821,7 @@ const TL=[["myday","Günüm","☀"],["important","Önemli","☆"],["planned","Pl
 const SMART=["myday","important","planned","all"];
 const REPS={"":"Tekrarlama","daily":"Her gün","weekdays":"Hafta içi her gün","weekly":"Her hafta","monthly":"Her ay","custom":"Özel…"};
 let tdList="myday",tdSel=null,tdDone=false,tdSug=false;
+let tdMulti=false,tdSelected=new Set();
 let tdV={};try{tdV=JSON.parse(localStorage.getItem("tdView")||"{}")}catch(e){}
 let tdPerson=tdV.p||"",tdSort=tdV.s||"",tdGroup=tdV.g||"list";
 const saveV=()=>localStorage.setItem("tdView",JSON.stringify({p:tdPerson,s:tdSort,g:tdGroup}));
@@ -909,7 +911,7 @@ function tdRow(t){
   const s=t.steps||[];if(s.length)m.push(s.filter(x=>x.done).length+" / "+s.length);
   if(t.due)m.push(`<span class="${!t.done&&t.due<todayS()?"od":t.due===todayS()?"tdy":""}">▦ ${dlabel(t.due)}</span>`);
   if(t.rem)m.push("🔔");if(t.repeat)m.push(t.repeat==="custom"?"↻ "+esc(repSummary(t)):"↻");if(t.note)m.push("▤");
-  return `<div class="tr ${t.id===tdSel?"sel":""} ${t.done?"dn":""}" data-open="${t.id}"><button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button><div class="tb"><div class="tt">${esc(t.title)}</div>${m.length?`<div class="tm">${m.map(x=>`<span>${x}</span>`).join("")}</div>`:""}</div>${paBadge(t.person)}<button class="st ${t.star?"on":""}" data-star="${t.id}" aria-label="Önemli">${t.star?"★":"☆"}</button></div>`;
+  return `<div class="tr ${t.id===tdSel?"sel":""} ${t.done?"dn":""} ${tdMulti?"multi-mode":""} ${tdSelected.has(t.id)?"multi-selected":""}" data-open="${t.id}">${tdMulti?`<button type="button" class="task-pick ${tdSelected.has(t.id)?"on":""}" data-task-pick="${t.id}" aria-label="${tdSelected.has(t.id)?"Seçimi kaldır":"Görevi seç"}">${tdSelected.has(t.id)?"✓":""}</button>`:""}<button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button><div class="tb"><div class="tt">${esc(t.title)}</div>${m.length?`<div class="tm">${m.map(x=>`<span>${x}</span>`).join("")}</div>`:""}</div>${paBadge(t.person)}<button class="st ${t.star?"on":""}" data-star="${t.id}" aria-label="Önemli">${t.star?"★":"☆"}</button></div>`;
 }
 function tdDetail(t,m){
   const steps=(t.steps||[]).map((x,i)=>`<div class="dr"><button class="circ ${x.done?"on":""}" data-sd="${i}" aria-label="Adım tamamlandı"></button><input type="text" class="sti ${x.done?"dn":""}" value="${esc(x.t)}" data-st="${i}"><button class="x" data-sx="${i}" aria-label="Adımı sil">×</button></div>`).join("");
@@ -944,7 +946,7 @@ function renderTodo(force){
     if(byP)keys.sort((a,b)=>!a?1:!b?-1:a.localeCompare(b,"tr"));else{const o=["tasks",...db.lists.map(l=>l.id)];keys.sort((a,b)=>o.indexOf(a)-o.indexOf(b))}
     return keys.map(k=>{const g=arr.filter(t=>kf(t)===k);return `<div class="gh"${byP?"":` data-glist="${k}"`}>${byP?(k?"👤 "+esc(k):"Kişi atanmamış"):esc(listName(k))}<span class="tag">${g.length}</span></div>`+g.map(tdRow).join("")}).join("");
   };
-  const tbar=`<div class="tbar">${ppl.length?`<label>👤 Kişi<select id="tdPer" aria-label="Kişiye göre filtrele"><option value="">Tüm kişiler</option><option value="__none" ${tdPerson==="__none"?"selected":""}>Kişi atanmamış</option>${ppl.map(x=>`<option value="${esc(x)}" ${tdPerson===x?"selected":""}>${esc(x)}</option>`).join("")}</select></label>`:""}<label>⇅ Sırala<select id="tdSort" aria-label="Sırala">${SORTS.map(([k,v])=>`<option value="${k}" ${tdSort===k?"selected":""}>${v}</option>`).join("")}</select></label>${tdList==="all"?`<label>☰ Grupla<select id="tdGrp" aria-label="Grupla">${[["list","Listeye göre"],["person","Kişiye göre"],["none","Gruplama yok"]].map(([k,v])=>`<option value="${k}" ${tdGroup===k?"selected":""}>${v}</option>`).join("")}</select></label>`:""}${tdPerson?'<button class="x" data-pclear>✕ Filtreyi temizle</button>':""}<span class="tag dghint">⠿ Görevi sürükleyip bir listeye bırak (telefonda basılı tut)</span></div>`;
+  const tbar=`<div class="tbar">${ppl.length?`<label>👤 Kişi<select id="tdPer" aria-label="Kişiye göre filtrele"><option value="">Tüm kişiler</option><option value="__none" ${tdPerson==="__none"?"selected":""}>Kişi atanmamış</option>${ppl.map(x=>`<option value="${esc(x)}" ${tdPerson===x?"selected":""}>${esc(x)}</option>`).join("")}</select></label>`:""}<label>⇅ Sırala<select id="tdSort" aria-label="Sırala">${SORTS.map(([k,v])=>`<option value="${k}" ${tdSort===k?"selected":""}>${v}</option>`).join("")}</select></label>${tdList==="all"?`<label>☰ Grupla<select id="tdGrp" aria-label="Grupla">${[["list","Listeye göre"],["person","Kişiye göre"],["none","Gruplama yok"]].map(([k,v])=>`<option value="${k}" ${tdGroup===k?"selected":""}>${v}</option>`).join("")}</select></label>`:""}${tdPerson?'<button class="x" data-pclear>✕ Filtreyi temizle</button>':""}<button class="btn g" type="button" data-multi-toggle>${tdMulti?"✓ Seçim modundan çık":"☑ Çoklu seç"}</button><span class="tag dghint">⠿ Görevi sürükleyip bir listeye bırak (telefonda basılı tut)</span></div>`;
   const btn=x=>`<button class="${tdList===x[0]?"on":""}" data-list="${x[0]}"><span>${x[2]}</span>${esc(x[1])}<span class="cnt">${cnt(x[0])||""}</span></button>`;
   const side=tdOrdered().map(btn).join("")+'<div class="nl"><input type="text" id="nlName" placeholder="＋ Yeni liste" aria-label="Yeni liste"></div>';
   const td=todayS(),grp=t=>t.due<td?"Gecikmiş":t.due===td?"Bugün":t.due===addD(1)?"Yarın":t.due<=addD(6)?"Bu hafta":"Daha sonra";
@@ -959,7 +961,8 @@ function renderTodo(force){
   const dn=done.length?`<button class="dh2" data-dtoggle>${tdDone?"▾":"▸"} Tamamlandı ${done.length}</button>`+(tdDone?grouper(done):""):"";
   const sel=selT();
   box.className="todo"+(sel?" has-d":"");
-  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><button type="button" class="task-add-btn" data-task-add>Görevi Ekle</button><input type="date" id="tdDue" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).filter(([k])=>k!=="custom").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>${pplList()}${tbar}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
+  const bulk=tdMulti?`<div class="bulkbar"><span class="tag">${tdSelected.size} görev seçildi</span><button class="btn g" data-bulk-all>Tümünü seç</button><button class="btn g" data-bulk-clear>Seçimi temizle</button><button class="btn" data-bulk-edit ${tdSelected.size?"":"disabled"}>Toplu düzenle</button><button class="btn danger" data-bulk-delete ${tdSelected.size?"":"disabled"}>Toplu sil</button></div>`:"";
+  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><button type="button" class="task-add-btn" data-task-add>Görevi Ekle</button><input type="date" id="tdDue" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).filter(([k])=>k!=="custom").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>${pplList()}${tbar}${bulk}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
   if(keep){$("#tdNew").value=keep.n;$("#tdDue").value=keep.d;$("#tdRep").value=keep.r;$("#tdPeople").value=keep.p;$("#nlName").value=keep.l;if(keep.f==="tdNew"||keep.f==="nlName"||keep.f==="tdPeople"){const f=$("#"+keep.f);if(f)f.focus()}}
 }
 function addTask(v){
@@ -971,11 +974,42 @@ function addTask(v){
   if(rep&&!t.due)t.due=todayS();
   db.tasks.push(t);$("#tdNew").value="";$("#tdDue").value="";$("#tdRep").value="";$("#tdPeople").value="";save();
 }
+function bulkEditTasks(){
+  const ids=[...tdSelected],items=db.tasks.filter(t=>tdSelected.has(t.id));if(!items.length)return;
+  const same=k=>items.every(t=>(t[k]||"")===(items[0][k]||""))?(items[0][k]||""):"";
+  const lists=cxLists();
+  const list=prompt("Yeni liste adını yaz (boş = değiştirme, - = varsayılan Görevler):\n"+lists.map(x=>x[1]).join(" / "),"");if(list===null)return;
+  const person=prompt("Yeni kişi (boş = değiştirme, - = atamayı kaldır):",same("person"));if(person===null)return;
+  const due=prompt("Yeni bitiş tarihi YYYY-MM-DD (boş = değiştirme, - = tarihi kaldır):",same("due"));if(due===null)return;
+  const status=prompt("Durum: tamamlandı / açık (boş = değiştirme):","");if(status===null)return;
+  const star=prompt("Önem: evet / hayır (boş = değiştirme):","");if(star===null)return;
+  const listText=list.trim(),targetList=listText?lists.find(x=>x[1].toLocaleLowerCase("tr-TR")===listText.toLocaleLowerCase("tr-TR")):null;
+  if(listText!=="-"&&listText&&!targetList){toast("Bu isimde bir liste bulunamadı.");return}
+  const date=due.trim();if(date&&date!=="-"&&!/^\d{4}-\d{2}-\d{2}$/.test(date)){toast("Tarih YYYY-MM-DD biçiminde olmalı.");return}
+  const st=status.trim().toLocaleLowerCase("tr-TR"),sv=star.trim().toLocaleLowerCase("tr-TR");
+  if(st&&!['tamamlandı','acık','açık'].includes(st)){toast("Durum için 'tamamlandı' veya 'açık' yaz.");return}
+  if(sv&&!['evet','hayır','hayir'].includes(sv)){toast("Önem için 'evet' veya 'hayır' yaz.");return}
+  items.forEach(t=>{
+    if(listText)t.list=listText==="-"?"tasks":targetList[0];
+    if(person.trim())t.person=person.trim()==="-"?"":person.trim();
+    if(date)t.due=date==="-"?"":date;
+    if(st){t.done=st==="tamamlandı";if(t.done)t.doneAt=Date.now();else delete t.doneAt}
+    if(sv)t.star=sv==="evet";
+  });
+  tdSelected.clear();tdMulti=false;save();toast(ids.length+" görev güncellendi.");
+}
+
 both("click",e=>{
   if(e.target.closest("[data-tc]"))return;
-  const el=e.target.closest("[data-task-add],[data-list],[data-star],[data-dmy],[data-sd],[data-sx],[data-tdel],[data-close],[data-dtoggle],[data-sugt],[data-sug],[data-ldel],[data-evdel],[data-rd],[data-open],[data-pclear]");if(!el)return;
+  const el=e.target.closest("[data-task-add],[data-task-pick],[data-multi-toggle],[data-bulk-all],[data-bulk-clear],[data-bulk-edit],[data-bulk-delete],[data-list],[data-star],[data-dmy],[data-sd],[data-sx],[data-tdel],[data-close],[data-dtoggle],[data-sugt],[data-sug],[data-ldel],[data-evdel],[data-rd],[data-open],[data-pclear]");if(!el)return;
   const D=el.dataset,t=selT();
-  if(D.taskAdd!=null){const v=$("#tdNew").value.trim();if(v)addTask(v);else{toast("Önce görev adını yaz.");$("#tdNew").focus()}}
+  if(D.taskPick){tdSelected.has(D.taskPick)?tdSelected.delete(D.taskPick):tdSelected.add(D.taskPick);renderTodo(true)}
+  else if(D.multiToggle!=null){tdMulti=!tdMulti;if(!tdMulti)tdSelected.clear();renderTodo(true)}
+  else if(D.bulkAll!=null){db.tasks.filter(x=>inList(x,tdList)&&(!tdPerson||(tdPerson==="__none"?!x.person:x.person===tdPerson))).forEach(x=>tdSelected.add(x.id));renderTodo(true)}
+  else if(D.bulkClear!=null){tdSelected.clear();renderTodo(true)}
+  else if(D.bulkDelete!=null){const ids=[...tdSelected];if(ids.length&&confirm(`${ids.length} görev kalıcı olarak silinsin mi?`)){db.tasks=db.tasks.filter(x=>!tdSelected.has(x.id));if(tdSelected.has(tdSel))tdSel=null;if(tdSelected.has(mdSel))mdSel=null;tdSelected.clear();save();renderTodo(true)}}
+  else if(D.bulkEdit!=null){bulkEditTasks()}
+  else if(D.taskAdd!=null){const v=$("#tdNew").value.trim();if(v)addTask(v);else{toast("Önce görev adını yaz.");$("#tdNew").focus()}}
   else if(D.pclear!=null){tdPerson="";saveV();renderTodo(true)}
   else if(D.list!=null){tdList=D.list;tdSel=null;renderTodo(true)}
   else if(D.star){const x=db.tasks.find(y=>y.id===D.star);x.star=!x.star;save()}
@@ -1933,6 +1967,7 @@ function cxTaskMenu(id,inModal){
   const t=cxTask(id);if(!t)return null;
   const td=todayS(),my=t.myday===td,cl=t.list||"tasks";
   const items=[];
+  if(!inModal)items.push({t:tdSelected.has(id)?"Seçimden çıkar":"Çoklu seçime ekle",i:"☑",fn:()=>{tdMulti=true;tdSelected.has(id)?tdSelected.delete(id):tdSelected.add(id);renderTodo(true)}});
   if(!inModal)items.push({t:"Aç / Düzenle",i:"✎",fn:()=>openTask(id)});
   items.push(
     {t:t.done?"Tamamlanmadı olarak işaretle":"Tamamlandı olarak işaretle",i:"✓",fn:()=>toggleTask(id)},
@@ -1954,6 +1989,7 @@ function cxTaskMenu(id,inModal){
 }
 function cxEventMenu(id,inModal){
   const e=cxEv(id);if(!e)return null;const items=[];
+  if(!inModal)items.push({t:tdSelected.has(id)?"Seçimden çıkar":"Çoklu seçime ekle",i:"☑",fn:()=>{tdMulti=true;tdSelected.has(id)?tdSelected.delete(id):tdSelected.add(id);renderTodo(true)}});
   if(!inModal)items.push({t:"Aç / Düzenle",i:"✎",fn:()=>openEvent(id)});
   items.push(
     {t:"Yarına ertele",i:"→",fn:()=>{e.date=cxAddDays(e.date,1);save()}},
@@ -2046,7 +2082,16 @@ function ctxItems(t){
   let x;
   if(t.closest("#nmodal"))return null;
   if(t.closest("#tmodal")){if(mdSel)return cxTaskMenu(mdSel,true);if(mdEv)return cxEventMenu(mdEv,true);return null}
-  if(x=t.closest("[data-open],[data-topen]"))return cxTaskMenu(x.dataset.open||x.dataset.topen);
+  if(x=t.closest("[data-open],[data-topen]")){
+    const id=x.dataset.open||x.dataset.topen;
+    if(tdSelected.has(id)&&tdSelected.size>1)return [
+      {t:tdSelected.size+" görevi seçili",i:"☑",dis:true,fn:()=>{}},
+      {t:"Toplu düzenle",i:"✎",fn:()=>bulkEditTasks()},
+      {t:"Toplu sil",i:"🗑",danger:true,fn:()=>{if(confirm(tdSelected.size+" görev kalıcı olarak silinsin mi?")){db.tasks=db.tasks.filter(q=>!tdSelected.has(q.id));tdSelected.clear();tdMulti=false;save();renderTodo(true)}}},
+      {t:"Seçimi temizle",i:"×",fn:()=>{tdSelected.clear();renderTodo(true)}}
+    ];
+    return cxTaskMenu(id);
+  }
   if(x=t.closest("[data-eopen]"))return cxEventMenu(x.dataset.eopen);
   if(t.closest("#tdDetail")&&tdSel)return cxTaskMenu(tdSel);
   if(x=t.closest("#todo [data-list]"))return cxListMenu(x.dataset.list);
