@@ -570,6 +570,12 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 .mu-dragging #muhF,.mu-dragging #muhR{outline:2px dashed var(--line);outline-offset:-2px}
 .mu-dz{outline:2px dashed var(--acc)!important;background:color-mix(in srgb,var(--acc) 8%,var(--panel))}
 .mu-rc.mu-dt{box-shadow:-4px 0 0 var(--acc)}.mu-src{opacity:.45}
+
+/* Proje takvim görünümü */
+.pc-head{display:flex;align-items:center;justify-content:center;gap:12px;margin:4px 0 12px}.pc-head b{min-width:145px;text-align:center}.pc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);overflow:hidden;border-radius:8px}.pc-wd{padding:8px 4px;text-align:center;font-weight:700;background:var(--soft);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.pc-day{min-height:112px;padding:5px;min-width:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--card)}.pc-day.out{opacity:.48}.pc-day.today{box-shadow:inset 0 0 0 2px var(--accent)}.pc-num{font-size:12px;font-weight:700;margin-bottom:5px}.pc-item{font-size:11px;line-height:1.35;padding:3px 4px;margin:2px 0;border-radius:4px;background:var(--accent-soft,var(--soft));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pc-item.sub{border-left:3px solid var(--accent);background:var(--soft)}.pc-item.done{text-decoration:line-through;opacity:.6}.pc-day small{font-size:10px;color:var(--muted)}@media(max-width:700px){.pc-day{min-height:78px;padding:3px}.pc-item{font-size:9px;padding:2px}.pc-wd{font-size:10px;padding:6px 1px}}
+
+
+.date-today-btn{flex:none;margin-left:4px;padding:4px 7px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--acc);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}.date-today-btn:hover{background:var(--hover, var(--panel))}
 </style>
 <style id="uiStyle"></style>
 <style id="pgStyle"></style>
@@ -666,8 +672,8 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 </section>
 
 <section id="proje">
-  <h2>Projeler</h2><p class="sub">Müşteri projelerini tablo ve Gantt grafiğiyle takip et. Başlıktaki ▾ ile Excel gibi filtrele, başlık adına tıklayarak sırala. Filtre iki görünümde de geçerlidir.</p>
-  <div class="aitabs" id="pTabs"><button class="chip on" data-ptab="track">Proje takip</button><button class="chip" data-ptab="gantt">Gantt grafiği</button></div>
+  <h2>Projeler</h2><p class="sub">Müşteri projelerini tablo, Gantt grafiği ve takvim görünümüyle takip et. Başlıktaki ▾ ile Excel gibi filtrele, başlık adına tıklayarak sırala. Filtre iki görünümde de geçerlidir.</p>
+  <div class="aitabs" id="pTabs"><button class="chip on" data-ptab="track">Proje takip</button><button class="chip" data-ptab="gantt">Gantt grafiği</button><button class="chip" data-ptab="calendar">Takvim</button></div>
   <div class="box"><div class="row"><input type="text" id="pNC" list="pClients" placeholder="Müşteri"><input type="text" id="pNN" placeholder="Proje adı"><label class="tag">Başlangıç <input type="date" id="pNS"></label><label class="tag">Bitiş <input type="date" id="pNE"></label><button class="btn" id="pAdd">＋ Proje ekle</button></div></div>
   <div class="box" id="pSubBox"><h3 style="margin:0 0 8px">Alt proje planlama</h3><p class="sub" style="margin:0 0 10px">Bir ana proje seç, alt proje adını ve tarih aralığını gir. Alt projeler Gantt görünümünde ana projenin altında listelenir.</p><div class="row"><select id="pSubParent" aria-label="Ana proje seç"><option value="">Ana proje seç</option></select><input type="text" id="pSubName" placeholder="Alt proje adı"><label class="tag">Başlangıç <input type="date" id="pSubStart"></label><label class="tag">Bitiş <input type="date" id="pSubEnd"></label><button class="btn" id="pSubAdd">＋ Alt proje ekle</button></div><div id="pSubList" style="margin-top:10px"></div></div>
   <div class="box">
@@ -753,7 +759,7 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
     <label class="f" for="nConu">Konu adı (tahmin edilmesi zor olsun, bir şifre gibi davranır)</label>
     <input type="text" id="nConu" style="width:100%">
     <div class="row" style="margin-top:10px"><button class="btn" id="nAc">Kaydet ve aç</button><button class="btn g" id="nTest">Test gönder</button><button class="btn g" id="bildirimIzin">Tarayıcı bildirimi izni</button></div>
-    <div class="opt" style="margin-top:12px"><span>Her sabah günün özeti<small>Hava, görevler, toplantılar ve gecikenler. Sonraki 3 gün için zamanlanır</small></span><input type="checkbox" id="dyOn"></div>
+    <div class="opt" style="margin-top:12px"><span>Her sabah günün özeti<small>Hava, görevler, devam eden projeler, etkinlikler, atasözü ve motivasyon. Yapay zeka destekli; sonraki 3 gün için zamanlanır</small></span><input type="checkbox" id="dyOn"></div>
     <div class="opt"><span>Özet saati</span><input type="time" id="dyAt"></div>
     <div class="row" style="margin-top:8px"><button class="btn g" id="dyTest">Özeti şimdi gönder</button></div>
     <p class="tag" id="nDurum" style="margin-top:8px"></p></div>
@@ -1396,7 +1402,7 @@ const PC=[
  {k:"prog",t:"İlerleme %",v:q=>(q.prog||0)+"%",s:q=>q.prog||0},
  {k:"left",t:"Kalan gün",v:pLeftTxt,s:q=>q.done?1e9:(pLeft(q)??1e8)},
  {k:"done",t:"Tamamlandı",v:q=>q.done?"Evet":"Hayır",s:q=>q.done?1:0}];
-let pTab=localStorage.getItem("pTab")||"track",pHid={},pSort={k:"start",d:1},pPopK=null,pQ="";
+let pTab=localStorage.getItem("pTab")||"track",pCalMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1),pHid={},pSort={k:"start",d:1},pPopK=null,pQ="";
 const pCmp=(c,d)=>(a,b)=>{const x=c.s(a),y=c.s(b);return (typeof x==="string"?x.localeCompare(y,"tr"):x-y)*d};
 function pRows(skip){
   const so=PC.find(c=>c.k===pSort.k)||PC[0];
@@ -1443,6 +1449,13 @@ function pGantt(rows){
   }).join("");
   return `<div class="gt" id="pGt" data-today="${LW+(td-mn)*ppd}"><div class="gt-in" style="width:${LW+W}px"><div class="gt-h"><div class="gt-l">Proje / Alt proje</div><div class="gt-t" style="width:${W}px"><div class="gt-mr">${mh}</div><div class="gt-dr">${tk}</div></div></div>${r}<div class="gt-now" style="left:${LW+(td-mn)*ppd+ppd/2}px"></div></div></div>`;
 }
+function pCalendar(rows){
+  const y=pCalMonth.getFullYear(),m=pCalMonth.getMonth(),first=new Date(y,m,1),start=new Date(y,m,1-((first.getDay()+6)%7)),days=[];
+  const entries=[];rows.forEach(q=>{if(q.start&&q.end)entries.push({id:q.id,name:q.name||"Adsız proje",start:q.start,end:q.end,sub:false,done:q.done});(q.subprojects||[]).forEach(sp=>{if(sp.start&&sp.end)entries.push({id:sp.id,parent:q.id,name:sp.name||"Adsız alt proje",start:sp.start,end:sp.end,sub:true,done:sp.done})})});
+  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const key=iso(d),inside=d.getMonth()===m,active=entries.filter(x=>x.start<=key&&x.end>=key);
+    days.push(`<div class="pc-day ${inside?'':'out'} ${key===todayS()?'today':''}"><div class="pc-num">${d.getDate()}</div>${active.slice(0,4).map(x=>`<div class="pc-item ${x.sub?'sub':''} ${x.done?'done':''}" title="${esc(x.name)} · ${fD(x.start)} – ${fD(x.end)}">${x.sub?'↳ ':''}${esc(x.name)}</div>`).join('')}${active.length>4?`<small>+${active.length-4} proje</small>`:''}</div>`);}
+  return `<div class="pc-head"><button class="btn g" data-pcal="prev" aria-label="Önceki ay">‹</button><b>${AYLAR[m]} ${y}</b><button class="btn g" data-pcal="next" aria-label="Sonraki ay">›</button><button class="btn g" data-pcal="today">Bugün</button></div><div class="pc-grid">${['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map(x=>`<div class="pc-wd">${x}</div>`).join('')}${days.join('')}</div><p class="tag">Renkli satırlar, ilgili tarihte devam eden ana projeleri ve alt projeleri gösterir. Proje tarihlerini Proje takip veya Alt proje planlama alanından düzenleyebilirsin.</p>`;
+}
 function pSubListHtml(){
   const all=[];db.projects.forEach(q=>(q.subprojects||[]).forEach(sp=>all.push({q,sp})));
   if(!all.length)return '<div class="empty" style="padding:10px">Henüz alt proje eklenmedi.</div>';
@@ -1458,7 +1471,7 @@ function renderProj(){
   const avg=rows.length?Math.round(rows.reduce((a,q)=>a+(q.prog||0),0)/rows.length):0,late=rows.filter(q=>pLeft(q)!=null&&pLeft(q)<0).length;
   $("#pSum").textContent=`${rows.length} / ${db.projects.length} proje · ortalama ilerleme %${avg} · ${late} geciken · ${rows.filter(q=>q.done).length} tamamlanan`;
   $("#pClearAll").hidden=!Object.values(pHid).some(x=>x&&x.size);
-  v.innerHTML=pTab==="track"?pTable(rows):pGantt(rows);
+  v.innerHTML=pTab==="track"?pTable(rows):pTab==="gantt"?pGantt(rows):pCalendar(rows);
   const g=$("#pGt");if(g){g.scrollLeft=sl!=null?sl:Math.max(0,+g.dataset.today-300);if(st!=null)g.scrollTop=st}
 }
 function pListHtml(k){
@@ -1490,6 +1503,7 @@ $("#pNS").value=todayS();
 $("#proje").addEventListener("click",e=>{
   const t=e.target,c=t.closest.bind(t);let x;
   if(x=c("[data-ptab]")){pTab=x.dataset.ptab;localStorage.setItem("pTab",pTab);pClose();renderProj()}
+  else if(x=c("[data-pcal]")){const a=x.dataset.pcal;if(a==="prev")pCalMonth.setMonth(pCalMonth.getMonth()-1);else if(a==="next")pCalMonth.setMonth(pCalMonth.getMonth()+1);else pCalMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);renderProj()}
   else if(x=c("[data-pfb]"))pOpen(x.dataset.pfb,x);
   else if(x=c("[data-ps]")){const k=x.dataset.ps;pSort=pSort.k===k?{k,d:-pSort.d}:{k,d:1};renderProj()}
   else if(x=c("[data-psort]")){const[k,d]=x.dataset.psort.split(":");pSort={k,d:+d};renderProj()}
@@ -2176,22 +2190,31 @@ function buildSummary(k,wx){
   tasks.sort((a,b)=>(b.star-a.star)||(a.time?0:1)-(b.time?0:1)||a.time.localeCompare(b.time));
   const late=db.tasks.filter(t=>open(t)&&t.due&&t.due<td).sort((a,b)=>a.due.localeCompare(b.due)).map(t=>({id:t.id,title:t.title,due:t.due}));
   const projs=db.projects.filter(q=>!q.done&&dN(q.end)!=null).map(q=>({id:q.id,title:q.name||"Proje",d:dN(q.end)-dN(k)})).filter(x=>x.d>=0&&x.d<=3).sort((a,b)=>a.d-b.d);
+  const ongoing=db.projects.filter(q=>!q.done&&q.start&&q.end&&q.start<=k&&q.end>=k).map(q=>({id:q.id,title:q.name||"Proje",start:q.start,end:q.end,prog:q.prog||0,subs:(q.subprojects||[]).filter(sp=>!sp.done&&sp.start<=k&&sp.end>=k).map(sp=>sp.name)}));
   const label=new Date(k+"T00:00").toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"});
   const focus=isT?(tasks.find(t=>t.star)||tasks[0]||null):null;
-  return {k,isT,label,wx:wxFor(k,wx),evs,tasks,rems,late,projs,focus};
+  return {k,isT,label,wx:wxFor(k,wx),evs,tasks,rems,late,projs,ongoing,focus};
 }
 const smList=(a,n,f)=>a.slice(0,n).map(f).join(" · ")+(a.length>n?" · +"+(a.length-n)+" daha":"");
-function sumText(s){
-  const L=[],w=s.wx,t=x=>(x.star?"★ ":"")+(x.time?x.time+" ":"")+x.title;
-  L.push(s.isT?"Günaydın! 👋":s.label+" için planın:");
-  if(w)L.push(`${w.icon} ${w.city}: ${w.txt}, ${w.mn}°–${w.mx}°, yağış %${w.pp}.${w.tip?" "+w.tip:""}`);
-  if(s.evs.length)L.push(`📅 ${s.evs.length} etkinlik: `+smList(s.evs,6,e=>(e.time?e.time+" ":"")+e.title));
-  if(s.tasks.length)L.push(`✅ ${s.tasks.length} görev: `+smList(s.tasks,6,t));
-  if(s.rems.length)L.push("🔔 Anımsatıcı: "+smList(s.rems,4,t));
-  if(s.late.length)L.push(`⚠️ ${s.late.length} gecikmiş görev: `+smList(s.late,3,x=>x.title));
-  if(s.projs.length)L.push("📌 Proje teslimi: "+smList(s.projs,3,x=>x.title+" ("+(x.d===0?"bugün":x.d+" gün")+")"));
-  if(s.focus)L.push("🎯 Önce şunu bitir: "+s.focus.title);
-  if(!s.evs.length&&!s.tasks.length&&!s.rems.length&&!s.late.length)L.push("Planlı görev veya etkinlik yok. Rahat bir gün 🙂");
+async function dailyAiExtras(s){
+  const fallback={proverb:"Damlaya damlaya göl olur.",motivation:"Bugün küçük ama kararlı bir adım at; ilerleme böyle başlar."};
+  if(!db.settings.gemini)return fallback;
+  try{
+    const context={date:s.label,tasks:s.tasks.slice(0,8).map(x=>x.title),projects:s.ongoing.slice(0,8).map(x=>x.title),events:s.evs.slice(0,6).map(x=>x.title)};
+    const raw=await gem([{role:"user",parts:[{text:"Bugünün kısa sabah bildirimi için Türkçe bir atasözü ve kişiye özel, tek cümlelik motive edici mesaj üret. Günlük plan bilgisi: "+JSON.stringify(context)+". Atasözü gerçek ve bilinen bir Türk atasözü olsun; uydurma söz kullanma. Motivasyon mesajı planla uyumlu, sade ve klişesiz olsun. Şu JSON biçiminde yanıtla: {\"proverb\":\"...\",\"motivation\":\"...\"}"}]}],"Yalnızca istenen JSON alanlarını üret.",true);
+    const clean=raw.replace(/^```(?:json)?\s*/i,"").replace(/```$/,""),j=JSON.parse(clean);
+    return {proverb:String(j.proverb||fallback.proverb).slice(0,180),motivation:String(j.motivation||fallback.motivation).slice(0,220)};
+  }catch(e){return fallback}
+}
+async function sumText(s){
+  const L=[],w=s.wx,ai=await dailyAiExtras(s),list=(a,n,f)=>a.length?a.slice(0,n).map(f).join(" · ")+(a.length>n?` · +${a.length-n} daha`:""):"Yok";
+  L.push("☀️ GÜNÜN ÖZETİ · "+s.label);
+  L.push("🌦️ HAVA");L.push(w?`${w.city}: ${w.txt}, ${w.mn}°–${w.mx}°, yağış %${w.pp}.${w.tip?" "+w.tip:""}`:"Hava durumu için Ayarlar bölümünden şehir seç.");
+  L.push("\n✅ GÜNÜN GÖREVLERİ");L.push(list(s.tasks,8,t=>(t.star?"★ ":"")+(t.time?t.time+" ":"")+t.title));if(s.late.length)L.push("Geciken: "+list(s.late,4,x=>x.title));
+  L.push("\n📌 DEVAM EDEN PROJELER");L.push(list(s.ongoing,8,x=>`${x.title} (%${x.prog})${x.subs.length?" · "+x.subs.join(", "):""}`));
+  L.push("\n📅 GÜNÜN ETKİNLİKLERİ");L.push(list(s.evs,8,e=>(e.time?e.time+" ":"")+e.title));
+  L.push("\n📜 GÜNÜN ATASÖZÜ");L.push(ai.proverb);
+  L.push("\n💡 GÜNÜN MOTİVASYONU");L.push(ai.motivation);
   return L.join("\n");
 }
 function sumHTML(s,title,foot){
@@ -2286,7 +2309,7 @@ async function dailySync(){
     for(let n=0;n<=3;n++){
       const d=new Date();d.setDate(d.getDate()+n);d.setHours(hh||0,mm||0,0,0);const at=d.getTime();
       if(at<=now+3e4||at>now+71*36e5)continue;
-      const k=iso(d),sm=buildSummary(k,wx),title="☀️ Günün özeti · "+sm.label,msg=sumText(sm),h=hashS(title+msg+at);
+      const k=iso(d),sm=buildSummary(k,wx),title="☀️ Günün özeti · "+sm.label,msg=await sumText(sm),h=hashS(title+msg+at);
       if(rec[k]&&rec[k].h===h)continue;
       if(rec[k]&&now-rec[k].p<2e4)continue;
       const body={title,message:msg,delay:String(Math.floor(at/1000)),sequence_id:"gunluk-"+k,tags:["sunrise"]};
@@ -2312,7 +2335,7 @@ $("#dyOn").onchange=e=>{db.settings.dailyOn=e.target.checked;save(true);if(e.tar
 $("#dyAt").onchange=e=>{db.settings.dailyAt=e.target.value||"07:45";save(true);drawBrief();schedDaily(500)};
 $("#dyTest").onclick=async()=>{
   if(!db.settings.ntfyOn)return toast("Önce telefon bildirimlerini aç (Kaydet ve aç).");
-  try{const wx=await getWx(),sm=buildSummary(todayS(),wx),r=await ntfy({title:"☀️ Günün özeti · "+sm.label,message:sumText(sm),tags:["sunrise"]});toast(r.ok?"Özet gönderildi.":"Gönderilemedi.")}catch(e){toast("Gönderilemedi.")}
+  try{const wx=await getWx(),sm=buildSummary(todayS(),wx),msg=await sumText(sm),r=await ntfy({title:"☀️ Günün özeti · "+sm.label,message:msg,tags:["sunrise"]});toast(r.ok?"Özet gönderildi.":"Gönderilemedi.")}catch(e){toast("Gönderilemedi.")}
 };
 const numIn=v=>{const n=parseFloat(String(v).replace(",","."));return isFinite(n)&&n>0?n:0};
 $("#fyK").onclick=()=>{const m={benzin:numIn($("#fyB").value),motorin:numIn($("#fyM").value),lpg:numIn($("#fyL").value),d:todayS()};
@@ -3224,6 +3247,30 @@ function tickClock(){
 }
 tickClock();setInterval(tickClock,1000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")tickClock()});
+
+/* Tarih alanlarına hızlı Bugün seçeneği */
+(()=>{
+  const todayLocal=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+  const addTodayButtons=(root)=>{
+    const fields=[];
+    if(root.matches&&root.matches('input[type="date"]'))fields.push(root);
+    if(root.querySelectorAll)fields.push(...root.querySelectorAll('input[type="date"]'));
+    fields.forEach(input=>{
+      if(input.dataset.todayButton||!input.parentNode)return;
+      input.dataset.todayButton="1";
+      const b=document.createElement("button");
+      b.type="button";b.className="date-today-btn";b.textContent="Bugün";b.title="Bugünün tarihini seç";
+      b.addEventListener("click",()=>{
+        input.value=todayLocal();
+        input.dispatchEvent(new Event("input",{bubbles:true}));
+        input.dispatchEvent(new Event("change",{bubbles:true}));
+      });
+      input.insertAdjacentElement("afterend",b);
+    });
+  };
+  addTodayButtons(document);
+  new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)addTodayButtons(n)}))).observe(document.body,{childList:true,subtree:true});
+})();
 </script>
 </body>
 </html>
