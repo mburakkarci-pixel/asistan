@@ -1146,7 +1146,7 @@ function updateNow(){
   if(lb){lb.style.display=ls.length?"block":"none";lb.style.top=(y-8)+"px";lb.textContent=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0")}
   if(todayS()!==lastDay){lastDay=todayS();render()}
 }
-setInterval(updateNow,30000);
+setInterval(updateNow,30000);setInterval(()=>{if(document.visibilityState==="visible"&&typeof bundle==="function"){const e=$("#pHaber");if(e)bundle(2,false,false).then(h=>{e.innerHTML=h}).catch(()=>{})}},9e5);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")updateNow()});
 function drawCal(){
   $$("[data-cv]").forEach(b=>b.classList.toggle("on",b.dataset.cv===calMode));
@@ -1355,16 +1355,53 @@ const imgOf=x=>{
   const m=((x.content||"")+" "+(x.description||"")).match(/<img[^>]+src=["']([^"']+)["']/i);
   return m&&ok(m[1])?fix(m[1]):"";
 };
+const dts=d=>{const s=String(d||"");const t=new Date(s.replace(" ","T")+(/[zZ]|[+-]\d\d:?\d\d$/.test(s)?"":"Z")).getTime();return isNaN(t)?0:t};
+function parseFeedXML(x){
+  const d=new DOMParser().parseFromString(x,"text/xml");
+  if(d.getElementsByTagName("parsererror").length)throw new Error("xml");
+  const tx=(n,t)=>{const e=n.getElementsByTagName(t)[0];return e?(e.textContent||"").trim():""};
+  const src=tx(d,"title");
+  return [...d.getElementsByTagName("item"),...d.getElementsByTagName("entry")].slice(0,12).map(n=>{
+    let l="";const ls=[...n.getElementsByTagName("link")];
+    for(const e of ls){const h=e.getAttribute("href");if(h&&(!e.getAttribute("rel")||e.getAttribute("rel")==="alternate")){l=h;break}}
+    if(!l){const e=ls.find(e=>(e.textContent||"").trim());l=e?e.textContent.trim():""}
+    if(!l)l=tx(n,"guid");
+    const raw=tx(n,"content:encoded")||tx(n,"description")||tx(n,"summary")||tx(n,"content");
+    const g=(t,a)=>{const e=n.getElementsByTagName(t)[0];return e?(e.getAttribute(a)||""):""};
+    let u=g("media:thumbnail","url")||g("media:content","url");
+    if(!u){const e=[...n.getElementsByTagName("enclosure")].find(e=>/image/i.test(e.getAttribute("type")||"")||/\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(e.getAttribute("url")||""));u=e?e.getAttribute("url"):""}
+    if(!u){const m=raw.match(/<img[^>]+src=["']([^"']+)["']/i);u=m?m[1]:""}
+    u=/^https?:\/\//i.test(u)&&!/(pixel|spacer|blank|1x1|tracking)/i.test(u)?u.replace(/^http:\/\//i,"https://"):"";
+    const t=Date.parse(tx(n,"pubDate")||tx(n,"dc:date")||tx(n,"published")||tx(n,"updated"));
+    return {title:tx(n,"title"),link:l,desc:txt(raw).slice(0,160),date:isNaN(t)?"":new Date(t).toISOString(),src,img:u};
+  }).filter(i=>i.title&&i.link);
+}
+async function getFeed(url){
+  const get=(p)=>{const c=new AbortController();const to=setTimeout(()=>c.abort(),9000);return fetch(p,{signal:c.signal,cache:"no-store"}).finally(()=>clearTimeout(to))};
+  const xml=async p=>{const r=await get(p);if(!r.ok)throw new Error("http");const i=parseFeedXML(await r.text());if(!i.length)throw new Error("bos");return i};
+  const e=encodeURIComponent(url);
+  const tries=[
+    ()=>xml(url),
+    ()=>xml("https://api.allorigins.win/raw?url="+e),
+    ()=>xml("https://corsproxy.io/?url="+e),
+    async()=>{const r=await get("https://api.rss2json.com/v1/api.json?rss_url="+e);const j=await r.json();
+      if(j.status&&j.status!=="ok")throw new Error("r2j");
+      const i=(j.items||[]).slice(0,12).map(x=>({title:x.title,link:x.link,desc:txt(x.description).slice(0,160),date:x.pubDate||"",src:(j.feed&&j.feed.title)||"",img:imgOf(x)}));
+      if(!i.length)throw new Error("bos");return i}
+  ];
+  for(const f of tries){try{return await f()}catch(e){}}
+  return [];
+}
 async function feed(url){
   const k="n2:"+url;let c=null;try{c=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}
-  if(c&&Date.now()-c.t<18e5)return c.i;
-  try{const r=await fetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(url));const j=await r.json();
-    const i=(j.items||[]).slice(0,12).map(x=>({title:x.title,link:x.link,desc:txt(x.description).slice(0,160),date:x.pubDate,src:(j.feed&&j.feed.title)||"",img:imgOf(x)}));
-    try{localStorage.setItem(k,JSON.stringify({t:Date.now(),i}))}catch(e){}return i}catch(e){return c?c.i:[]}
+  if(c&&c.i&&c.i.length&&Date.now()-c.t<6e5)return c.i;
+  const i=await getFeed(url);
+  if(i.length){try{localStorage.setItem(k,JSON.stringify({t:Date.now(),i}))}catch(e){}return i}
+  return c&&c.i?c.i:[];
 }
 async function catItems(c){
-  const all=(await Promise.all((c.feeds.length?c.feeds:[gnews(c.name)]).map(feed))).flat();
-  const seen=new Set();return all.filter(i=>!seen.has(i.title)&&seen.add(i.title)).sort((a,b)=>new Date(b.date.replace(" ","T")+"Z")-new Date(a.date.replace(" ","T")+"Z"));
+  const all=(await Promise.all((c.feeds.length?c.feeds:[gnews(c.name)]).map(u=>feed(u).catch(()=>[])))).flat();
+  const seen=new Set();return all.filter(i=>!seen.has(i.title)&&seen.add(i.title)).sort((a,b)=>dts(b.date)-dts(a.date));
 }
 const agoTxt=d=>{const t=new Date(String(d||"").replace(" ","T")+(/[zZ]|[+-]\d\d:?\d\d$/.test(String(d||""))?"":"Z")).getTime();if(!t)return"";const m=Math.round((Date.now()-t)/6e4);if(m<1)return"şimdi";if(m<60)return m+" dk önce";if(m<1440)return Math.round(m/60)+" sa önce";if(m<43200)return Math.round(m/1440)+" gün önce";return""};
 const newsHTML=(i,snip,big)=>{
@@ -2139,7 +2176,7 @@ function cxNewsMenu(a){
   ];
 }
 function cxNewsCat(name,btn){
-  const items=[{t:"Aç",i:"▸",fn:()=>btn.click()},{t:"Yenile",i:"↻",fn:()=>haberler()}];
+  const items=[{t:"Aç",i:"▸",fn:()=>btn.click()},{t:"Yenile",i:"↻",fn:()=>$("#hYenile").click()}];
   if(name!=="Özet")items.push("-",{t:"Kategoriyi sil",i:"🗑",danger:true,fn:()=>{if(confirm(name+" kategorisi silinsin mi?")){db.news=db.news.filter(c=>c.name!==name);db.newsU=Date.now();newsView="Özet";save(true);haberler()}}});
   return items;
 }
@@ -2158,7 +2195,7 @@ function cxAppMenu(){
   else if(cur==="takvim"){items.push({t:"Bugüne git",i:"◉",fn:()=>{sel=todayS();drawCal()}},{t:"Etkinlik ekle",i:"＋",fn:()=>{const i=$("#eBaslik");if(i){i.scrollIntoView({block:"center"});i.focus()}}},{t:".ics dışa aktar",i:"⇩",fn:()=>$("#icsOut").click()})}
   else if(cur==="notlar"){items.push({t:"Yeni liste notu",i:"☑",fn:()=>$("#nYeni").click()},{t:"Yeni defter sayfası",i:"▤",fn:()=>$("#nSayfa").click()})}
   else if(cur==="proje"){items.push({t:"Yeni proje",i:"＋",fn:()=>{const i=$("#pNN");if(i){i.scrollIntoView({block:"center"});i.focus()}}},{t:"Excel'e aktar (CSV)",i:"⇩",fn:()=>$("#pCsv").click()},{t:"Filtreleri temizle",i:"✕",dis:$("#pClearAll").hidden,fn:()=>$("#pClearAll").click()})}
-  else if(cur==="haber"){items.push({t:"Yenile",i:"↻",fn:()=>haberler()})}
+  else if(cur==="haber"){items.push({t:"Yenile",i:"↻",fn:()=>$("#hYenile").click()})}
   if(PLT[cur])items.push({t:plEdit===cur?"Sayfa düzenlemeyi bitir":"Sayfayı düzenle",i:"⚙",fn:()=>plToggle(cur,plEdit!==cur)});
   if(items.length)items.push("-");
   const th=localStorage.getItem("theme")||"auto";
