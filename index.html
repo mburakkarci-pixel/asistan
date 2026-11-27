@@ -451,6 +451,8 @@ main:has(#proje.on){max-width:1400px}
 .gt-now{position:absolute;top:0;bottom:0;width:2px;background:var(--nowc);z-index:3;pointer-events:none}
 .gt-now::before{content:"Bugün";position:absolute;top:2px;left:4px;font-size:10px;font-weight:600;color:var(--nowc);background:var(--bg);padding:0 3px;border-radius:3px}
 .ptool{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.ptool .tag{margin-right:auto}
+.p-subrow .gt-l{padding-left:26px;font-size:12px;color:var(--mute)}.p-subrow .gt-b{top:12px;height:18px;border-style:dashed}.p-subrow .gt-p{font-size:11px}.ps-list{display:grid;gap:6px}.ps-item{display:grid;grid-template-columns:minmax(140px,1.5fr) minmax(140px,1.2fr) minmax(125px,1fr) minmax(125px,1fr) 76px 34px;gap:6px;align-items:center;padding:6px;border:1px solid var(--line);border-radius:8px}.ps-item input{min-width:0;width:100%}.ps-parent{font-size:11px;color:var(--mute);padding:4px 2px}@media(max-width:700px){.ps-item{grid-template-columns:1fr 1fr}.ps-item .ps-parent{grid-column:1/-1}.ps-item input[data-psf="name"]{grid-column:1/-1}}
+
 
 /* pdf çıktı */
 .gp-ui .row{margin-bottom:10px}.gp-ui label.tag{display:inline-flex;gap:6px;align-items:center;font-size:13px}
@@ -667,6 +669,7 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
   <h2>Projeler</h2><p class="sub">Müşteri projelerini tablo ve Gantt grafiğiyle takip et. Başlıktaki ▾ ile Excel gibi filtrele, başlık adına tıklayarak sırala. Filtre iki görünümde de geçerlidir.</p>
   <div class="aitabs" id="pTabs"><button class="chip on" data-ptab="track">Proje takip</button><button class="chip" data-ptab="gantt">Gantt grafiği</button></div>
   <div class="box"><div class="row"><input type="text" id="pNC" list="pClients" placeholder="Müşteri"><input type="text" id="pNN" placeholder="Proje adı"><label class="tag">Başlangıç <input type="date" id="pNS"></label><label class="tag">Bitiş <input type="date" id="pNE"></label><button class="btn" id="pAdd">＋ Proje ekle</button></div></div>
+  <div class="box" id="pSubBox"><h3 style="margin:0 0 8px">Alt proje planlama</h3><p class="sub" style="margin:0 0 10px">Bir ana proje seç, alt proje adını ve tarih aralığını gir. Alt projeler Gantt görünümünde ana projenin altında listelenir.</p><div class="row"><select id="pSubParent" aria-label="Ana proje seç"><option value="">Ana proje seç</option></select><input type="text" id="pSubName" placeholder="Alt proje adı"><label class="tag">Başlangıç <input type="date" id="pSubStart"></label><label class="tag">Bitiş <input type="date" id="pSubEnd"></label><button class="btn" id="pSubAdd">＋ Alt proje ekle</button></div><div id="pSubList" style="margin-top:10px"></div></div>
   <div class="box">
     <div class="ptool"><span class="tag" id="pSum"></span><span id="pGtool" hidden class="row" style="gap:8px"><select id="pScale" aria-label="Ölçek"><option value="28">Ölçek: Gün</option><option value="12">Ölçek: Hafta</option><option value="4">Ölçek: Ay</option></select><button class="btn g" id="pToday">Bugüne git</button></span><button class="btn g" id="pClearAll">Filtreleri temizle</button><button class="btn g" id="pCsv">Excel'e aktar (CSV)</button></div>
     <div id="pView"></div>
@@ -1414,23 +1417,43 @@ function pTable(rows){
   return `<div class="pwrap"><table class="pt"><thead><tr><th class="pn">#</th>${th}<th></th></tr></thead><tbody>${body||`<tr><td colspan="${PC.length+2}" class="empty" style="padding:14px">${db.projects.length?"Filtreyle eşleşen proje yok.":"Henüz proje yok. Yukarıdan ekleyebilirsin."}</td></tr>`}</tbody></table></div>`;
 }
 function pGantt(rows){
-  const ok=rows.filter(q=>dN(q.start)!=null&&dN(q.end)!=null);
-  if(!ok.length)return '<div class="empty">Gösterilecek proje yok (başlangıç ve bitiş tarihi gerekir).</div>';
+  const items=[];
+  rows.forEach(q=>{
+    const kids=Array.isArray(q.subprojects)?q.subprojects:[];
+    items.push({type:"parent",q});
+    kids.forEach(sp=>items.push({type:"sub",q,sp}));
+  });
+  const dates=[];
+  items.forEach(it=>{const x=it.type==="parent"?it.q:it.sp;if(dN(x.start)!=null&&dN(x.end)!=null)dates.push([dN(x.start),dN(x.end)]);});
+  if(!dates.length)return '<div class="empty">Gantt için ana proje veya alt projelere başlangıç ve bitiş tarihi gir.</div>';
   const ppd=+localStorage.getItem("pScale")||12,td=dN(todayS()),LW=220;
-  const mn=Math.min(td,...ok.map(q=>dN(q.start)))-7,mx=Math.max(td,...ok.map(q=>Math.max(dN(q.end),dN(q.start))))+14,W=(mx-mn+1)*ppd;
+  const mn=Math.min(td,...dates.map(x=>x[0]))-7,mx=Math.max(td,...dates.map(x=>x[1]))+14,W=(mx-mn+1)*ppd;
   let mh="";for(let d=mn;d<=mx;){const dt=dFN(d),y=dt.getUTCFullYear(),m=dt.getUTCMonth(),e=Math.min(Math.floor(Date.UTC(y,m+1,1)/864e5)-1,mx),w=(e-d+1)*ppd;mh+=`<div class="gt-m" style="width:${w}px">${w>70?AYLAR[m]+" "+y:AYLAR[m].slice(0,3)}</div>`;d=e+1}
   let tk="";const off=(7-((dFN(mn).getUTCDay()+6)%7))%7;
   if(ppd>=24){for(let d=mn;d<=mx;d++)tk+=`<div class="gt-d" style="left:${(d-mn)*ppd}px">${dFN(d).getUTCDate()}</div>`}
   else if(ppd>=8){for(let d=mn+off;d<=mx;d+=7)tk+=`<div class="gt-d" style="left:${(d-mn)*ppd}px">${dFN(d).getUTCDate()}</div>`}
   const grid=ppd>=8?`background-image:linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:${7*ppd}px 100%;background-position:${off*ppd}px 0;`:"";
-  const r=ok.map(q=>{const a=dN(q.start),b=Math.max(dN(q.end),a),late=!q.done&&b<td,pr=q.prog||0;
-    return `<div class="gt-r" data-pid="${q.id}"><div class="gt-l" title="${esc(q.client)} – ${esc(q.name)}"><b>${q.done?"✓ ":""}${esc(q.name||"(adsız)")}</b><span class="tag">${esc(q.client||"")}</span></div><div class="gt-t" style="width:${W}px;${grid}"><div class="gt-b ${q.done?"dn":late?"late":""}" style="left:${(a-mn)*ppd}px;width:${(b-a+1)*ppd}px" title="${esc(q.client)} – ${esc(q.name)}: ${fD(q.start)} → ${fD(q.end)} · %${pr}"><i style="width:${pr}%"></i></div><span class="gt-p" style="left:${(b-mn+1)*ppd+6}px">${pr}%</span></div></div>`}).join("");
-  return `<div class="gt" id="pGt" data-today="${LW+(td-mn)*ppd}"><div class="gt-in" style="width:${LW+W}px"><div class="gt-h"><div class="gt-l">Proje / Müşteri</div><div class="gt-t" style="width:${W}px"><div class="gt-mr">${mh}</div><div class="gt-dr">${tk}</div></div></div>${r}<div class="gt-now" style="left:${LW+(td-mn)*ppd+ppd/2}px"></div></div></div>`;
+  const r=items.map(it=>{
+    const sub=it.type==="sub",x=sub?it.sp:it.q,a=dN(x.start),b=dN(x.end),has=a!=null&&b!=null;
+    const pr=x.prog||0,late=has&&!x.done&&b<td,cls=x.done?"dn":late?"late":"";
+    const label=sub?x.name||"(adsız alt proje)":x.name||"(adsız proje)";
+    const client=sub?"↳ Alt proje · "+(it.q.name||""):(it.q.client||"");
+    const bar=has?`<div class="gt-b ${cls}" style="left:${(a-mn)*ppd}px;width:${(Math.max(b,a)-a+1)*ppd}px" title="${esc(label)}: ${fD(x.start)} → ${fD(x.end)} · %${pr}"><i style="width:${pr}%"></i></div><span class="gt-p" style="left:${(b-mn+1)*ppd+6}px">${pr}%</span>`:"";
+    return `<div class="gt-r ${sub?"p-subrow":""}" data-pid="${it.q.id}" ${sub?`data-subid="${x.id}"`:""}><div class="gt-l" title="${esc(label)}"><b>${sub?"↳ ":""}${x.done?"✓ ":""}${esc(label)}</b><span class="tag">${esc(client)}</span></div><div class="gt-t" style="width:${W}px;${grid}">${bar}</div></div>`;
+  }).join("");
+  return `<div class="gt" id="pGt" data-today="${LW+(td-mn)*ppd}"><div class="gt-in" style="width:${LW+W}px"><div class="gt-h"><div class="gt-l">Proje / Alt proje</div><div class="gt-t" style="width:${W}px"><div class="gt-mr">${mh}</div><div class="gt-dr">${tk}</div></div></div>${r}<div class="gt-now" style="left:${LW+(td-mn)*ppd+ppd/2}px"></div></div></div>`;
+}
+function pSubListHtml(){
+  const all=[];db.projects.forEach(q=>(q.subprojects||[]).forEach(sp=>all.push({q,sp})));
+  if(!all.length)return '<div class="empty" style="padding:10px">Henüz alt proje eklenmedi.</div>';
+  return '<div class="ps-list">'+all.map(({q,sp})=>`<div class="ps-item" data-subitem="${sp.id}"><div class="ps-parent">${esc(q.name||"Adsız proje")} · ${esc(q.client||"Müşteri yok")}</div><input type="text" data-psf="name" data-pid="${q.id}" data-sid="${sp.id}" value="${esc(sp.name||"")}" aria-label="Alt proje adı"><input type="date" data-psf="start" data-pid="${q.id}" data-sid="${sp.id}" value="${esc(sp.start||"")}" aria-label="Alt proje başlangıç"><input type="date" data-psf="end" data-pid="${q.id}" data-sid="${sp.id}" value="${esc(sp.end||"")}" aria-label="Alt proje bitiş"><input type="number" min="0" max="100" step="5" data-psf="prog" data-pid="${q.id}" data-sid="${sp.id}" value="${sp.prog||0}" aria-label="İlerleme yüzde"><button class="x" data-psdel="${q.id}:${sp.id}" title="Alt projeyi sil">×</button></div>`).join('')+'</div>';
 }
 function renderProj(){
   const v=$("#pView");if(!v)return;
   $$("#pTabs .chip").forEach(c=>c.classList.toggle("on",c.dataset.ptab===pTab));$("#pGtool").hidden=pTab!=="gantt";$("#pScale").value=localStorage.getItem("pScale")||"12";
   $("#pClients").innerHTML=[...new Set(db.projects.map(q=>q.client).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"tr")).map(x=>`<option value="${esc(x)}"></option>`).join("");
+  const psSel=$("#pSubParent"),psVal=psSel.value;psSel.innerHTML='<option value="">Ana proje seç</option>'+db.projects.map(q=>`<option value="${q.id}">${esc(q.name||"Adsız proje")}${q.client?" · "+esc(q.client):""}</option>`).join("");if(db.projects.some(q=>q.id===psVal))psSel.value=psVal;
+  $("#pSubList").innerHTML=pSubListHtml();
   const rows=pRows(),old=$("#pGt"),sl=old?old.scrollLeft:null,st=old?old.scrollTop:null;
   const avg=rows.length?Math.round(rows.reduce((a,q)=>a+(q.prog||0),0)/rows.length):0,late=rows.filter(q=>pLeft(q)!=null&&pLeft(q)<0).length;
   $("#pSum").textContent=`${rows.length} / ${db.projects.length} proje · ortalama ilerleme %${avg} · ${late} geciken · ${rows.filter(q=>q.done).length} tamamlanan`;
@@ -1458,6 +1481,11 @@ function pAdd(){
   if(dN(en)<dN(st))return toast("Bitiş tarihi başlangıçtan önce olamaz.");
   db.projects.push({id:uid(),client:c,name:n,start:st,end:en,prog:0,done:false,created:Date.now()});$("#pNN").value="";save();
 }
+function pSubAdd(){
+  const pid=$("#pSubParent").value,name=$("#pSubName").value.trim(),start=$("#pSubStart").value,end=$("#pSubEnd").value;
+  const parent=db.projects.find(q=>q.id===pid);if(!parent)return toast("Önce ana proje seç.");if(!name)return toast("Alt proje adını yaz.");if(!start||!end)return toast("Alt proje başlangıç ve bitiş tarihlerini gir.");if(dN(end)<dN(start))return toast("Alt proje bitişi başlangıçtan önce olamaz.");
+  parent.subprojects=Array.isArray(parent.subprojects)?parent.subprojects:[];parent.subprojects.push({id:uid(),name,start,end,prog:0,done:false,created:Date.now()});$("#pSubName").value="";save();toast("Alt proje eklendi.");
+}
 $("#pNS").value=todayS();
 $("#proje").addEventListener("click",e=>{
   const t=e.target,c=t.closest.bind(t);let x;
@@ -1468,6 +1496,8 @@ $("#proje").addEventListener("click",e=>{
   else if(x=c("[data-pclr]")){delete pHid[x.dataset.pclr];$("#pPL").innerHTML=pListHtml(x.dataset.pclr);renderProj()}
   else if(c("[data-pclose]"))pClose();
   else if(t.id==="pAdd")pAdd();
+  else if(t.id==="pSubAdd")pSubAdd();
+  else if(x=c("[data-psdel]")){const [pid,sid]=x.dataset.psdel.split(":");const q=db.projects.find(y=>y.id===pid);if(q&&confirm("Bu alt proje silinsin mi?")){q.subprojects=(q.subprojects||[]).filter(z=>z.id!==sid);save()}}
   else if(t.id==="pClearAll"){pHid={};pClose();renderProj()}
   else if(t.id==="pToday"){const g=$("#pGt");if(g)g.scrollLeft=Math.max(0,+g.dataset.today-300)}
   else if(t.id==="pCsv"){
@@ -1480,7 +1510,8 @@ $("#proje").addEventListener("click",e=>{
 document.addEventListener("click",e=>{if(!$("#pPop").hidden&&!e.target.closest("#pPop,[data-pfb]"))pClose()});
 $("#proje").addEventListener("change",e=>{
   const t=e.target,d=t.dataset;
-  if(d.f){const q=db.projects.find(y=>y.id===d.id);if(!q)return;
+  if(d.psf){const q=db.projects.find(y=>y.id===d.pid),sp=q&&(q.subprojects||[]).find(z=>z.id===d.sid);if(!sp)return;sp[d.psf]=d.psf==="prog"?Math.max(0,Math.min(100,Math.round(+t.value||0))):t.value;if(d.psf==="prog")sp.done=sp.prog===100;if((d.psf==="start"||d.psf==="end")&&sp.start&&sp.end&&sp.end<sp.start){toast("Alt proje bitişi başlangıçtan önce olamaz.");return}save()}
+  else if(d.f){const q=db.projects.find(y=>y.id===d.id);if(!q)return;
     if(d.f==="prog"){q.prog=Math.max(0,Math.min(100,Math.round(+t.value||0)));q.done=q.prog===100}
     else{q[d.f]=t.value.trim?t.value.trim():t.value;if((d.f==="start"||d.f==="end")&&q.start&&q.end&&q.end<q.start)toast("Uyarı: bitiş tarihi başlangıçtan önce.")}
     save()}
@@ -1492,7 +1523,7 @@ $("#proje").addEventListener("change",e=>{
   else if(t.id==="pScale"){localStorage.setItem("pScale",t.value);renderProj()}
 });
 $("#proje").addEventListener("input",e=>{if(e.target.id==="pPQ"){pQ=e.target.value;$("#pPL").innerHTML=pListHtml(pPopK)}});
-$("#proje").addEventListener("keydown",e=>{if(e.key==="Escape")pClose();if(e.key==="Enter"&&(e.target.id==="pNN"||e.target.id==="pNC"))pAdd()});
+$("#proje").addEventListener("keydown",e=>{if(e.key==="Escape")pClose();if(e.key==="Enter"&&(e.target.id==="pNN"||e.target.id==="pNC"))pAdd();if(e.key==="Enter"&&e.target.id==="pSubName")pSubAdd()});
 
 /* pdf çıktı */
 let gp=Object.assign({title:"Görev Listesi",off:[],person:"",done:false,steps:true,notes:false,fit:true,brk:false,cols:1,orient:"p",fs:11,group:"list"},(()=>{try{return JSON.parse(localStorage.getItem("gpdf")||"{}")}catch(e){return{}}})());
