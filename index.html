@@ -703,7 +703,7 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
       <div class="row" style="justify-content:space-between"><h3>Google Gemini</h3><span class="gstat" id="gStat"></span></div>
       <p class="sub" style="margin:4px 0 0">Ücretsiz katman için Google AI Studio'dan anahtar alabilirsin; kullanım sınırları Google'a bağlıdır ve değişebilir.</p>
       <label class="f" for="aKey">API anahtarı</label><input type="password" id="aKey" style="width:100%" autocomplete="off">
-      <label class="f" for="aModel">Model</label><input type="text" id="aModel" list="gModels" style="width:100%"><datalist id="gModels"><option value="gemini-2.5-flash"></option><option value="gemini-2.5-flash-lite"></option><option value="gemini-2.5-pro"></option></datalist>
+      <label class="f" for="aModel">Model</label><input type="text" id="aModel" list="gModels" style="width:100%"><datalist id="gModels"><option value="gemini-3.8-flash"></option><option value="gemini-3.7-flash"></option><option value="gemini-3.5-flash-lite"></option></datalist>
       <div class="row" style="margin-top:10px"><button class="btn" id="aKaydet">Kaydet</button><button class="btn g" id="gTest">Bağlantıyı test et</button><a class="btn g" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Ücretsiz anahtar al ↗</a></div>
       <p class="tag" id="gTestOut" style="margin-top:8px"></p>
     </div>
@@ -781,9 +781,10 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const KEY="kisisel-asistan-v2";
 const defNews=[{name:"Genel",feeds:["https://feeds.bbci.co.uk/turkce/rss.xml","https://rss.dw.com/rdf/rss-tur-all"]},{name:"Spor",feeds:["https://www.aa.com.tr/tr/rss/default?cat=spor","https://feeds.bbci.co.uk/sport/rss.xml"]},{name:"Ekonomi",feeds:["https://www.aa.com.tr/tr/rss/default?cat=ekonomi"]}];
-const mk=()=>({tasks:[],events:[],notes:[],lists:[],projects:[],habits:[],formulas:[],calcs:[],etables:[],news:structuredClone(defNews),newsU:0,del:{},pushed:{},settings:{gemini:"",model:"gemini-2.5-flash",city:null,ntfy:"asistan-"+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6),ntfyOn:false,ghTok:"",ghId:""}});
+const mk=()=>({tasks:[],events:[],notes:[],lists:[],projects:[],habits:[],formulas:[],calcs:[],etables:[],news:structuredClone(defNews),newsU:0,del:{},pushed:{},settings:{gemini:"",model:"gemini-3.8-flash",city:null,ntfy:"asistan-"+Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6),ntfyOn:false,ghTok:"",ghId:""}});
 function norm(j){const d=mk();const o=Object.assign(d,j||{});o.settings=Object.assign(d.settings,(j||{}).settings||{});return o}
 let db;try{db=norm(JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){db=mk()}
+if(!db.settings.model||db.settings.model==="gemini-2.5-flash"||db.settings.model==="models/gemini-2.5-flash"){db.settings.model="gemini-3.8-flash";localStorage.setItem(KEY,JSON.stringify(db))}
 let fileHandle=null,view=new Date(),sel,curNote=null,newsView="Özet",ft;
 view.setDate(1);
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -1589,20 +1590,29 @@ $("#themeBtn").onclick=()=>{const o=["auto","light","dark"],c=localStorage.getIt
 $("#thChips").onclick=e=>{const b=e.target.closest("[data-th]");if(b)setTheme(b.dataset.th)};
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>setTheme(localStorage.getItem("theme")||"auto"));
 
-/* gemini modülü ve akıllı asistan */
+/* Gemini Interactions API ve akıllı asistan */
 async function gem(contents,sys,json){
   const s=db.settings;if(!s.gemini)throw new Error("Önce Gemini API anahtarını gir (Yapay zeka › Gemini).");
-  const body={contents};if(sys)body.systemInstruction={parts:[{text:sys}]};if(json)body.generationConfig={responseMimeType:"application/json"};
-  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(s.model||"gemini-2.5-flash")}:generateContent?key=${encodeURIComponent(s.gemini)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const model="models/"+(s.model||"gemini-3.8-flash").replace(/^models\//,"");
+  const input=Array.isArray(contents)?contents.map(m=>{
+    const txt=Array.isArray(m.parts)?m.parts.map(p=>p.text||"").join("\n"):String(m.content||"");
+    return (m.role==="model"?"Asistan":"Kullanıcı")+": "+txt;
+  }).join("\n\n"):String(contents||"");
+  const instruction=[sys||"",json?"Yanıtını yalnızca geçerli JSON olarak ver. Markdown kod bloğu veya ek açıklama ekleme.":""].filter(Boolean).join("\n\n");
+  const body={model,input,store:false};if(instruction)body.system_instruction=instruction;
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1/interactions?key=${encodeURIComponent(s.gemini)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error((j.error&&j.error.message)||("HTTP "+r.status));
-  return (j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts.map(p=>p.text||"").join(""))||"";
+  const parts=(j.steps||[]).filter(x=>x.type==="model_output").flatMap(x=>x.content||[]);
+  const answer=parts.filter(x=>x.type==="text").map(x=>x.text||"").join("");
+  if(!answer)throw new Error(j.status==="failed"?"Gemini isteği başarısız oldu.":"Gemini yanıt metni döndürmedi.");
+  return answer;
 }
-function gStat(){const e=$("#gStat");if(!e)return;const ok=!!db.settings.gemini;e.textContent=ok?"Bağlı · "+(db.settings.model||"gemini-2.5-flash"):"Anahtar girilmedi";e.classList.toggle("ok",ok)}
+function gStat(){const e=$("#gStat");if(!e)return;const ok=!!db.settings.gemini;e.textContent=ok?"Bağlı · "+(db.settings.model||"gemini-3.8-flash"):"Anahtar girilmedi";e.classList.toggle("ok",ok)}
 function aiTab(t){$$("#aiTabs .chip").forEach(c=>c.classList.toggle("on",c.dataset.at===t));["chat","smart","gem"].forEach(x=>{$("#at-"+x).hidden=x!==t});if(t==="gem")gStat()}
 $("#aiTabs").onclick=e=>{const b=e.target.closest("[data-at]");if(b)aiTab(b.dataset.at)};
 $("#gGit").onclick=()=>{go("ai");aiTab("gem")};
 $("#gTest").onclick=async()=>{const o=$("#gTestOut");o.textContent="Test ediliyor…";
-  db.settings.gemini=$("#aKey").value.trim();db.settings.model=$("#aModel").value.trim()||"gemini-2.5-flash";save(true);
+  db.settings.gemini=$("#aKey").value.trim();db.settings.model=$("#aModel").value.trim()||"gemini-3.8-flash";save(true);
   try{const t=await gem([{role:"user",parts:[{text:"Sadece 'tamam' yaz."}]}]);o.textContent="Bağlantı çalışıyor: "+t.trim().slice(0,40);gStat()}catch(e){o.textContent="Hata: "+e.message}};
 let smActs=[];
 const okD=v=>/^\d{4}-\d\d-\d\d$/.test(v||""),okR=v=>/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(v||"");
@@ -1641,16 +1651,14 @@ $("#aiGonder").onclick=async()=>{
   $("#aiGir").value="";say("u",q);const w=say("a","…");
   const ctx={simdi:new Date().toLocaleString("tr-TR"),gorevler:db.tasks.filter(t=>!t.done).map(t=>({baslik:t.title,bitis:t.due,animsat:t.rem,onemli:!!t.star,kisi:t.person||"",tekrar:repSummary(t)})),etkinlikler:db.events.filter(e=>e.date>=iso(new Date())).slice(0,30)};
   hist.push({role:"user",parts:[{text:q}]});
-  try{const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(db.settings.model)}:generateContent?key=${encodeURIComponent(db.settings.gemini)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({systemInstruction:{parts:[{text:"Sen kullanıcının Türkçe konuşan kişisel asistanısın. Kısa, net, uygulanabilir yanıt ver. Kullanıcı verisi: "+JSON.stringify(ctx)}]},contents:hist.slice(-12)})});
-    const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||r.status);
-    const t=(j.candidates&&j.candidates[0].content.parts.map(p=>p.text).join(""))||"Yanıt alınamadı.";hist.push({role:"model",parts:[{text:t}]});w.textContent=t;
-  }catch(e){hist.pop();w.textContent="Hata: "+e.message+". Anahtarı ve model adını Ayarlar'da kontrol et."}
+  try{const t=await gem(hist.slice(-12),"Sen kullanıcının Türkçe konuşan kişisel asistanısın. Kısa, net, uygulanabilir yanıt ver. Kullanıcı verisi: "+JSON.stringify(ctx));hist.push({role:"model",parts:[{text:t}]});w.textContent=t;
+  }catch(e){hist.pop();w.textContent="Hata: "+e.message+". Gemini API anahtarını ve model ayarını kontrol et."}
 };
 $("#aiGir").onkeydown=e=>{if(e.key==="Enter")$("#aiGonder").click()};
 
 /* ayarlar */
 function fill(){$("#aKey").value=db.settings.gemini;$("#aModel").value=db.settings.model;$("#nConu").value=db.settings.ntfy;$("#nDurum").textContent=db.settings.ntfyOn?"Telefon bildirimleri açık.":"Telefon bildirimleri kapalı.";$("#ghTok").value=db.settings.ghTok||"";odStatus(db.settings.ghTok?"Bağlı."+(ss.last?" Son eşitleme: "+ss.last:""):"Bağlı değil.");if(db.settings.city)$("#cDurum").textContent="Seçili konum: "+db.settings.city.name}
-$("#aKaydet").onclick=()=>{db.settings.gemini=$("#aKey").value.trim();db.settings.model=$("#aModel").value.trim()||"gemini-2.5-flash";save(true);gStat();toast("Kaydedildi.")};
+$("#aKaydet").onclick=()=>{db.settings.gemini=$("#aKey").value.trim();db.settings.model=$("#aModel").value.trim()||"gemini-3.8-flash";save(true);gStat();toast("Kaydedildi.")};
 $("#bildirimIzin").onclick=async()=>{if(!("Notification" in window))return toast("Tarayıcı bildirim desteklemiyor.");toast((await Notification.requestPermission())==="granted"?"Tarayıcı bildirimi açık.":"İzin verilmedi.")};
 
 /* ntfy: sayfa kapalıyken telefona zamanlanmış bildirim */
