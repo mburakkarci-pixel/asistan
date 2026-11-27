@@ -87,6 +87,8 @@ main:has(#gorev.on){max-width:1240px}
 .tmain .sub{margin:2px 0 14px;min-height:1em}
 .addbar{display:flex;gap:8px;align-items:center;background:color-mix(in srgb,var(--acc) 9%,var(--panel));border-radius:6px;padding:4px 10px;margin-bottom:12px}
 .addbar .pl{color:var(--acc);font-size:20px}
+.task-add-btn{flex:0 0 auto;border:0;border-radius:7px;background:var(--acc);color:var(--acc-ink);font-weight:600;padding:10px 13px;min-height:40px;cursor:pointer;white-space:nowrap}.task-add-btn:active{transform:scale(.97)}
+@media(max-width:720px){.addbar{display:flex;flex-wrap:wrap;gap:7px;padding:9px}.addbar .pl{display:none}.addbar #tdNew{flex:1 1 calc(100% - 120px);min-width:0}.task-add-btn{flex:0 0 auto}.addbar input:not([type=text]),.addbar select{flex:1 1 30%;max-width:none;min-width:0;min-height:38px}}
 .addbar input[type=text]{flex:1;background:transparent;border:0;padding:10px 4px}
 .addbar input,.addbar select{font-size:13px}
 .addbar input:not([type=text]),.addbar select{background:transparent;border:0;color:var(--mute);max-width:130px}
@@ -957,10 +959,11 @@ function renderTodo(force){
   const dn=done.length?`<button class="dh2" data-dtoggle>${tdDone?"▾":"▸"} Tamamlandı ${done.length}</button>`+(tdDone?grouper(done):""):"";
   const sel=selT();
   box.className="todo"+(sel?" has-d":"");
-  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><input type="date" id="tdDue" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).filter(([k])=>k!=="custom").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>${pplList()}${tbar}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
+  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><button type="button" class="task-add-btn" data-task-add>Görevi Ekle</button><input type="date" id="tdDue" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).filter(([k])=>k!=="custom").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>${pplList()}${tbar}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
   if(keep){$("#tdNew").value=keep.n;$("#tdDue").value=keep.d;$("#tdRep").value=keep.r;$("#tdPeople").value=keep.p;$("#nlName").value=keep.l;if(keep.f==="tdNew"||keep.f==="nlName"||keep.f==="tdPeople"){const f=$("#"+keep.f);if(f)f.focus()}}
 }
 function addTask(v){
+  v=(v||"").trim();if(!v){toast("Önce görev adını yaz.");$("#tdNew").focus();return}
   const due=$("#tdDue").value,rep=$("#tdRep").value;
   const pr=$("#tdPeople").value.trim()||(tdPerson&&tdPerson!=="__none"?tdPerson:"");
   const t={id:uid(),title:v,list:"tasks",person:pr,due,rem:"",repeat:rep,done:false,star:false,steps:[],note:"",myday:"",created:Date.now()};
@@ -970,9 +973,10 @@ function addTask(v){
 }
 both("click",e=>{
   if(e.target.closest("[data-tc]"))return;
-  const el=e.target.closest("[data-list],[data-star],[data-dmy],[data-sd],[data-sx],[data-tdel],[data-close],[data-dtoggle],[data-sugt],[data-sug],[data-ldel],[data-evdel],[data-rd],[data-open],[data-pclear]");if(!el)return;
+  const el=e.target.closest("[data-task-add],[data-list],[data-star],[data-dmy],[data-sd],[data-sx],[data-tdel],[data-close],[data-dtoggle],[data-sugt],[data-sug],[data-ldel],[data-evdel],[data-rd],[data-open],[data-pclear]");if(!el)return;
   const D=el.dataset,t=selT();
-  if(D.pclear!=null){tdPerson="";saveV();renderTodo(true)}
+  if(D.taskAdd!=null){const v=$("#tdNew").value.trim();if(v)addTask(v);else{toast("Önce görev adını yaz.");$("#tdNew").focus()}}
+  else if(D.pclear!=null){tdPerson="";saveV();renderTodo(true)}
   else if(D.list!=null){tdList=D.list;tdSel=null;renderTodo(true)}
   else if(D.star){const x=db.tasks.find(y=>y.id===D.star);x.star=!x.star;save()}
   else if(D.open){tdSel=D.open;renderTodo(true)}
