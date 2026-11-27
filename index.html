@@ -576,6 +576,8 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 
 
 .date-today-btn{flex:none;margin-left:4px;padding:4px 7px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--acc);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}.date-today-btn:hover{background:var(--hover, var(--panel))}
+/* geniş ekran (24" vb.): içerik tüm genişliği kullansın */
+@media(min-width:721px){main{max-width:none!important;padding:28px clamp(20px,2.6vw,56px)}}
 </style>
 <style id="uiStyle"></style>
 <style id="pgStyle"></style>
