@@ -578,6 +578,16 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 .date-today-btn{flex:none;margin-left:4px;padding:4px 7px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--acc);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}.date-today-btn:hover{background:var(--hover, var(--panel))}
 /* geniş ekran (24" vb.): içerik tüm genişliği kullansın */
 @media(min-width:721px){main{max-width:none!important;padding:28px clamp(20px,2.6vw,56px)}}
+/* proje popup, not ve to-do */
+.pj-box{width:min(560px,100%);max-height:88vh;overflow:auto}
+.pj-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}.pj-h>div{flex:1;min-width:0}.pj-h b{font-size:17px}.pj-dot{width:14px;height:14px;border-radius:4px;flex:none}
+.pj-box h4{margin:16px 0 6px;font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.pj-add{display:flex;gap:6px;margin-bottom:6px}.pj-add input,.pj-add textarea{flex:1;min-width:0}.pj-add textarea{min-height:62px;resize:vertical}
+.pj-it{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--line)}.pj-it>span{flex:1;min-width:0;overflow-wrap:anywhere}.pj-nt{cursor:pointer}.pj-nt:hover{color:var(--acc)}
+.pj-tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:1px 6px;margin-right:6px;border-radius:5px;color:var(--ink);background:color-mix(in srgb,var(--pc,var(--acc)) 28%,var(--panel));border-left:3px solid var(--pc,var(--acc));vertical-align:1px}
+.pj-open sup{font-size:9px;margin-left:1px;color:var(--acc)}.pc-bar[data-pid],.gt-r[data-pid] .gt-l,.gt-r[data-pid] .gt-b,.pt td.pn{cursor:pointer}
+.tdrd{display:inline-flex;flex-wrap:wrap;gap:3px;align-items:center}.tdrd[hidden]{display:none}.tdrd .chip{padding:2px 8px;font-size:12px}
+.tr{transition:opacity .3s}.tr.dn{opacity:.55}.tr.dn .tt{text-decoration:line-through}
 </style>
 <style id="uiStyle"></style>
 <style id="pgStyle"></style>
@@ -681,7 +691,7 @@ body.mu-dragging,body.mu-dragging *{cursor:grabbing!important;user-select:none}
 
 <section id="proje">
   <h2>Projeler</h2><p class="sub">Müşteri projelerini tablo, Gantt grafiği ve takvim görünümüyle takip et. Başlıktaki ▾ ile Excel gibi filtrele, başlık adına tıklayarak sırala. Filtre iki görünümde de geçerlidir.</p>
-  <div class="aitabs" id="pTabs"><button class="chip on" data-ptab="track">Proje takip</button><button class="chip" data-ptab="gantt">Gantt grafiği</button><button class="chip" data-ptab="calendar">Takvim</button></div>
+  <div class="aitabs" id="pTabs"><button class="chip on" data-ptab="track">Proje takip</button><button class="chip" data-ptab="gantt">Gantt grafiği</button><button class="chip" data-ptab="calendar">Takvim</button><button class="chip" data-ptab="done" id="pDoneTab">✓ Tamamlanan projeler</button></div>
   <div class="box"><div class="row"><input type="text" id="pNC" list="pClients" placeholder="Müşteri"><input type="text" id="pNN" placeholder="Proje adı"><label class="tag">Başlangıç <input type="date" id="pNS"></label><label class="tag">Bitiş <input type="date" id="pNE"></label><button class="btn" id="pAdd">＋ Proje ekle</button></div></div>
   <div class="box" id="pSubBox"><h3 style="margin:0 0 8px">Alt proje planlama</h3><p class="sub" style="margin:0 0 10px">Bir ana proje seç, alt proje adını ve tarih aralığını gir. Alt projeler Gantt görünümünde ana projenin altında listelenir.</p><div class="row"><select id="pSubParent" aria-label="Ana proje seç"><option value="">Ana proje seç</option></select><input type="text" id="pSubName" placeholder="Alt proje adı"><label class="tag">Başlangıç <input type="date" id="pSubStart"></label><label class="tag">Bitiş <input type="date" id="pSubEnd"></label><button class="btn" id="pSubAdd">＋ Alt proje ekle</button></div><div id="pSubList" style="margin-top:10px"></div></div>
   <div class="box">
@@ -837,7 +847,8 @@ $$("nav button[data-t]").forEach(b=>b.onclick=()=>go(b.dataset.t));
 const TL=[["myday","Günüm","☀"],["important","Önemli","☆"],["planned","Planlanmış","▦"],["all","Tümü","∞"],["tasks","Görevler","⌂"]];
 const SMART=["myday","important","planned","all"];
 const REPS={"":"Tekrarlama","daily":"Her gün","weekdays":"Hafta içi her gün","weekly":"Her hafta","monthly":"Her ay","custom":"Özel…"};
-let tdList="myday",tdSel=null,tdDone=false,tdSug=false;
+let tdRd=new Set();
+let tdList="myday",tdSel=null,tdDone=true,tdSug=false;
 let tdMulti=false,tdSelected=new Set();
 let tdV={};try{tdV=JSON.parse(localStorage.getItem("tdView")||"{}")}catch(e){}
 let tdPerson=tdV.p||"",tdSort=tdV.s||"",tdGroup=tdV.g||"list";
@@ -853,7 +864,7 @@ const personListId=name=>PERSON_LIST_PREFIX+encodeURIComponent((name||"").trim()
 const personFromList=id=>id.startsWith(PERSON_LIST_PREFIX)?decodeURIComponent(id.slice(PERSON_LIST_PREFIX.length)):null;
 const isPersonList=id=>id.startsWith(PERSON_LIST_PREFIX);
 const personTaskLists=()=>[...new Set(db.tasks.filter(t=>!t.done&&(t.person||"").trim()).map(t=>(t.person||"").trim()))].sort((a,b)=>a.localeCompare(b,"tr")).map(name=>[personListId(name),name+" - TO DO","👤"]);
-const inList=(t,l)=>l==="myday"?t.myday===todayS():l==="important"?!!t.star:l==="planned"?!!t.due:l==="all"?true:isPersonList(l)?!t.done&&(t.person||"").trim()===personFromList(l):(t.list||"tasks")===l;
+const inList=(t,l)=>l==="myday"?t.myday===todayS():l==="important"?!!t.star:l==="planned"?!!t.due:l==="all"?true:isPersonList(l)?(t.person||"").trim()===personFromList(l):(t.list||"tasks")===l;
 const listName=id=>{const f=TL.find(x=>x[0]===id);if(f)return f[1];if(isPersonList(id))return (personFromList(id)||"")+" - TO DO";return (db.lists.find(x=>x.id===id)||{name:"Görevler"}).name};
 const cnt=l=>db.tasks.filter(t=>!t.done&&inList(t,l)).length;
 let mdSel=null,mdEv=null;
@@ -913,7 +924,15 @@ function advance(t){
   else if(t.rem){const r=new Date(t.rem);r.setDate(r.getDate()+shift);t.rem=dt(r)}
   t.myday="";
 }
+const tcPend=new Set();
 function toggleTask(id){
+  const t=db.tasks.find(x=>x.id===id);if(!t)return;
+  if(tcPend.has(id))return;
+  if(!t.done&&!t.repeat){const box=$("#todo"),r=box&&box.offsetParent?box.querySelector(`.tr[data-open="${id}"]`):null;
+    if(r){tcPend.add(id);r.classList.add("dn");const c=r.querySelector(".circ");if(c)c.classList.add("on");setTimeout(()=>{tcPend.delete(id);toggleTaskNow(id)},380);return}}
+  toggleTaskNow(id);
+}
+function toggleTaskNow(id){
   const t=db.tasks.find(x=>x.id===id);if(!t)return;
   if(!t.done&&t.repeat){t.dlog=(t.dlog||[]).concat(Date.now()).slice(-40);advance(t);toast("Sonraki: "+dlabel(t.due))}else{t.done=!t.done;t.doneAt=t.done?Date.now():0}
   save();
@@ -934,7 +953,7 @@ function tdRow(t){
   if(t.start&&t.start>todayS())m.push(`<span>▶ ${dlabel(t.start)}</span>`);
   if(t.due)m.push(`<span class="${!t.done&&t.due<todayS()?"od":t.due===todayS()?"tdy":""}">▦ ${dlabel(t.due)}</span>`);
   if(t.rem)m.push("🔔");if(t.repeat)m.push(t.repeat==="custom"?"↻ "+esc(repSummary(t)):"↻");if(t.note)m.push("▤");
-  return `<div class="tr ${t.id===tdSel?"sel":""} ${t.done?"dn":""} ${tdMulti?"multi-mode":""} ${tdSelected.has(t.id)?"multi-selected":""}" data-open="${t.id}">${tdMulti?`<button type="button" class="task-pick ${tdSelected.has(t.id)?"on":""}" data-task-pick="${t.id}" aria-label="${tdSelected.has(t.id)?"Seçimi kaldır":"Görevi seç"}">${tdSelected.has(t.id)?"✓":""}</button>`:""}<button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button><div class="tb"><div class="tt">${esc(t.title)}</div>${m.length?`<div class="tm">${m.map(x=>`<span>${x}</span>`).join("")}</div>`:""}</div>${paBadge(t.person)}<button class="st ${t.star?"on":""}" data-star="${t.id}" aria-label="Önemli">${t.star?"★":"☆"}</button></div>`;
+  return `<div class="tr ${t.id===tdSel?"sel":""} ${t.done?"dn":""} ${tdMulti?"multi-mode":""} ${tdSelected.has(t.id)?"multi-selected":""}" data-open="${t.id}">${tdMulti?`<button type="button" class="task-pick ${tdSelected.has(t.id)?"on":""}" data-task-pick="${t.id}" aria-label="${tdSelected.has(t.id)?"Seçimi kaldır":"Görevi seç"}">${tdSelected.has(t.id)?"✓":""}</button>`:""}<button class="circ ${t.done?"on":""}" data-tc="${t.id}" aria-label="Tamamla"></button><div class="tb"><div class="tt">${pjBadge(t)}${esc(t.title)}</div>${m.length?`<div class="tm">${m.map(x=>`<span>${x}</span>`).join("")}</div>`:""}</div>${paBadge(t.person)}<button class="st ${t.star?"on":""}" data-star="${t.id}" aria-label="Önemli">${t.star?"★":"☆"}</button></div>`;
 }
 function tdDetail(t,m){
   const steps=(t.steps||[]).map((x,i)=>`<div class="dr"><button class="circ ${x.done?"on":""}" data-sd="${i}" aria-label="Adım tamamlandı"></button><input type="text" class="sti ${x.done?"dn":""}" value="${esc(x.t)}" data-st="${i}"><button class="x" data-sx="${i}" aria-label="Adımı sil">×</button></div>`).join("");
@@ -981,11 +1000,11 @@ function renderTodo(force){
     if(sg.length)sug=`<button class="dh2" data-sugt>${tdSug?"▾":"▸"} Öneriler ${sg.length}</button>`+(tdSug?sg.map(t=>`<div class="tr"><div class="tb"><div class="tt">${esc(t.title)}</div><div class="tm"><span class="${t.due<td?"od":"tdy"}">▦ ${dlabel(t.due)}</span></div></div><button class="st" data-sug="${t.id}" title="Günüm'e ekle" aria-label="Günüm'e ekle">＋</button></div>`).join(""):"")}
   const head=own?`<input type="text" id="lTitle" class="lt2" value="${esc(own.name)}" aria-label="Liste adı">`:`<h2>${esc(listName(tdList))}</h2>`;
   const sub=tdList==="myday"?new Date().toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"}):"";
-  const dn=done.length?`<button class="dh2" data-dtoggle>${tdDone?"▾":"▸"} Tamamlandı ${done.length}</button>`+(tdDone?grouper(done):""):"";
+  const dn=`<button class="dh2" data-dtoggle>${tdDone?"▾":"▸"} Tamamlanan görevler ${done.length}</button>`+(tdDone?(done.length?grouper(done):'<div class="tag" style="padding:4px 0 8px">Bu listede henüz tamamlanan görev yok. Bir görevi tamamlayınca buraya taşınır; tiki kaldırınca listeye döner.</div>'):"");
   const sel=selT();
   box.className="todo"+(sel?" has-d":"");
   const bulk=tdMulti?`<div class="bulkbar"><span class="tag">${tdSelected.size} görev seçildi</span><button class="btn g" data-bulk-all>Tümünü seç</button><button class="btn g" data-bulk-clear>Seçimi temizle</button><button class="btn" data-bulk-edit ${tdSelected.size?"":"disabled"}>Toplu düzenle</button><button class="btn danger" data-bulk-delete ${tdSelected.size?"":"disabled"}>Toplu sil</button></div>`:"";
-  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><button type="button" class="task-add-btn" data-task-add>Görevi Ekle</button><input type="date" id="tdStart" value="${todayS()}" title="Başlangıç tarihi" aria-label="Başlangıç tarihi"><input type="date" id="tdDue" title="Bitiş tarihi" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).filter(([k])=>k!=="custom").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div>${pplList()}${tbar}${bulk}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
+  box.innerHTML=`<div class="tl">${side}</div><div class="tmain">${head}<p class="sub">${sub}</p><div class="addbar"><span class="pl">＋</span><input type="text" id="tdNew" placeholder="Bir görev ekle" aria-label="Yeni görev"><button type="button" class="task-add-btn" data-task-add>Görevi Ekle</button><input type="date" id="tdStart" value="${todayS()}" title="Başlangıç tarihi" aria-label="Başlangıç tarihi"><input type="date" id="tdDue" title="Bitiş tarihi" aria-label="Bitiş tarihi"><input type="text" id="tdPeople" list="ppl" placeholder="👤 Kişi (ad soyad)" aria-label="Kişi" autocomplete="off"><select id="tdRep" aria-label="Tekrarla">${Object.entries(REPS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select><span id="tdRdBox" class="tdrd" ${keep&&keep.r==="custom"?"":"hidden"} role="group" aria-label="Tekrar günleri">${[1,2,3,4,5,6,0].map(x=>`<button type="button" class="chip ${tdRd.has(x)?"on":""}" data-tdrd="${x}" aria-pressed="${tdRd.has(x)}">${DN[x]}</button>`).join("")}</span></div>${pplList()}${tbar}${bulk}${sug}${body}${dn}${own?'<p><button class="x" data-ldel>Listeyi sil</button></p>':""}</div>`+(sel?`<div class="td" id="tdDetail">${tdDetail(sel)}</div>`:"");
   if(keep){$("#tdNew").value=keep.n;$("#tdStart").value=keep.s;$("#tdDue").value=keep.d;$("#tdRep").value=keep.r;$("#tdPeople").value=keep.p;$("#nlName").value=keep.l;if(keep.f==="tdNew"||keep.f==="nlName"||keep.f==="tdPeople"){const f=$("#"+keep.f);if(f)f.focus()}}
 }
 function addTask(v){
@@ -995,7 +1014,8 @@ function addTask(v){
   const t={id:uid(),title:v,list:"tasks",person:pr,start,due,rem:"",repeat:rep,done:false,star:false,steps:[],note:"",myday:"",created:Date.now()};
   if(tdList==="myday")t.myday=todayS();else if(tdList==="important")t.star=true;else if(tdList==="planned"){if(!t.due)t.due=todayS()}else if(tdList!=="all"&&!isPersonList(tdList))t.list=tdList;
   if(rep&&!t.due)t.due=todayS();
-  db.tasks.push(t);$("#tdNew").value="";$("#tdStart").value=todayS();$("#tdDue").value="";$("#tdRep").value="";$("#tdPeople").value="";save();
+  if(rep==="custom"){t.rdays=tdRd.size?[...tdRd]:[new Date(t.due+"T00:00").getDay()];t.rint=1;t.rtime="";fixCustom(t)}
+  db.tasks.push(t);$("#tdNew").value="";$("#tdStart").value=todayS();$("#tdDue").value="";$("#tdRep").value="";tdRd.clear();$("#tdPeople").value="";save();
 }
 function bulkEditTasks(){
   const ids=[...tdSelected],items=db.tasks.filter(t=>tdSelected.has(t.id));if(!items.length)return;
@@ -1479,7 +1499,7 @@ let pTab=localStorage.getItem("pTab")||"track",pCalMonth=new Date(new Date().get
 const pCmp=(c,d)=>(a,b)=>{const x=c.s(a),y=c.s(b);return (typeof x==="string"?x.localeCompare(y,"tr"):x-y)*d};
 function pRows(skip){
   const so=PC.find(c=>c.k===pSort.k)||PC[0];
-  return db.projects.filter(q=>PC.every(c=>c.k===skip||!pHid[c.k]||!pHid[c.k].has(c.v(q)))).sort(pCmp(so,pSort.d));
+  return db.projects.filter(q=>(pTab==="done")===!!q.done&&PC.every(c=>c.k===skip||!pHid[c.k]||!pHid[c.k].has(c.v(q)))).sort(pCmp(so,pSort.d));
 }
 function pTable(rows){
   const th=PC.map(c=>`<th><div class="ph"><span data-ps="${c.k}">${c.t}${pSort.k===c.k?(pSort.d>0?" ▲":" ▼"):""}</span><button class="pf ${pHid[c.k]&&pHid[c.k].size?"on":""}" data-pfb="${c.k}" aria-label="${c.t} filtresi">▾</button></div></th>`).join("");
@@ -1492,13 +1512,14 @@ function pTable(rows){
 <td><div class="pgc"><input type="number" min="0" max="100" step="5" data-f="prog" data-id="${q.id}" value="${q.prog||0}" aria-label="İlerleme yüzdesi"><div class="pgb"><i style="width:${q.prog||0}%"></i></div></div></td>
 <td class="pl ${cls}">${esc(pLeftTxt(q))}</td>
 <td class="pck"><input type="checkbox" data-fd="${q.id}" ${q.done?"checked":""} aria-label="Tamamlandı"></td>
-<td class="dl"><button class="x" data-pdel="${q.id}" aria-label="Projeyi sil">×</button></td></tr>`}).join("");
-  return `<div class="pwrap"><table class="pt"><thead><tr><th class="pn">#</th>${th}<th></th></tr></thead><tbody>${body||`<tr><td colspan="${PC.length+2}" class="empty" style="padding:14px">${db.projects.length?"Filtreyle eşleşen proje yok.":"Henüz proje yok. Yukarıdan ekleyebilirsin."}</td></tr>`}</tbody></table></div>`;
+<td class="dl"><button class="x pj-open" data-popen="${q.id}" title="Detay · not · to-do" aria-label="Proje detayı, notlar ve to-do">▤${pjCnt(q.id)?`<sup>${pjCnt(q.id)}</sup>`:""}</button><button class="x" data-pdel="${q.id}" aria-label="Projeyi sil">×</button></td></tr>`}).join("");
+  return `<div class="pwrap"><table class="pt"><thead><tr><th class="pn">#</th>${th}<th></th></tr></thead><tbody>${body||`<tr><td colspan="${PC.length+2}" class="empty" style="padding:14px">${pTab==="done"?"Henüz tamamlanan proje yok. Proje takipte tamamlandı tiki atınca proje buraya taşınır.":db.projects.length?"Filtreyle eşleşen proje yok.":"Henüz proje yok. Yukarıdan ekleyebilirsin."}</td></tr>`}</tbody></table></div>`;
 }
 const P_COLORS=["#4285F4","#EA4335","#34A853","#FBBC04","#9C27B0","#00ACC1","#FF7043","#7E57C2","#8D6E63","#EC407A","#78909C","#9E9D24"];
 function pColor(q){if(q&&q.color)return q.color;const id=String(q?.id||"");let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))>>>0;return P_COLORS[h%P_COLORS.length]}
 function pNextColor(){const counts=P_COLORS.map(c=>db.projects.filter(q=>q.color===c).length);return P_COLORS[counts.indexOf(Math.min(...counts))]}
 function pGantt(rows){
+  rows=rows.filter(q=>!q.done);
   const items=[];
   rows.forEach(q=>{
     const kids=Array.isArray(q.subprojects)?q.subprojects:[];
@@ -1527,8 +1548,9 @@ function pGantt(rows){
   return `<div class="gt" id="pGt" data-today="${LW+(td-mn)*ppd}"><div class="gt-in" style="width:${LW+W}px"><div class="gt-h"><div class="gt-l">Proje / Alt proje</div><div class="gt-t" style="width:${W}px"><div class="gt-mr">${mh}</div><div class="gt-dr">${tk}</div></div></div>${r}<div class="gt-now" style="left:${LW+(td-mn)*ppd+ppd/2}px"></div></div></div>`;
 }
 function pCalendar(rows){
+  rows=rows.filter(q=>!q.done);
   const y=pCalMonth.getFullYear(),m=pCalMonth.getMonth(),first=new Date(y,m,1),start=new Date(y,m,1-((first.getDay()+6)%7)),tdk=todayS();
-  const entries=[];rows.forEach(q=>{if(q.start&&q.end)entries.push({name:q.name||"Adsız proje",start:q.start,end:q.end<q.start?q.start:q.end,sub:false,done:q.done,color:pColor(q)});(q.subprojects||[]).forEach(sp=>{if(sp.start&&sp.end)entries.push({name:sp.name||"Adsız alt proje",start:sp.start,end:sp.end<sp.start?sp.start:sp.end,sub:true,done:sp.done,color:pColor(q)})})});
+  const entries=[];rows.forEach(q=>{if(q.start&&q.end)entries.push({pid:q.id,name:q.name||"Adsız proje",start:q.start,end:q.end<q.start?q.start:q.end,sub:false,done:q.done,color:pColor(q)});(q.subprojects||[]).forEach(sp=>{if(sp.start&&sp.end)entries.push({pid:q.id,name:sp.name||"Adsız alt proje",start:sp.start,end:sp.end<sp.start?sp.start:sp.end,sub:true,done:sp.done,color:pColor(q)})})});
   entries.sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:(a.end<b.end?1:a.end>b.end?-1:0));
   const MAXL=6;let weeks="";
   for(let w=0;w<6;w++){
@@ -1537,7 +1559,7 @@ function pCalendar(rows){
     const lanes=[];segs.forEach(g=>{let L=0;while(lanes[L]&&lanes[L]>=g.a)L++;lanes[L]=g.b;g.L=L});
     const used=Math.min(lanes.length,MAXL),hid=Array(7).fill(0);
     const bars=segs.map(g=>{if(g.L>=MAXL){for(let i=g.a;i<=g.b;i++)hid[i]++;return""}const x=g.x;
-      return `<div class="pc-bar ${x.sub?"sub":""} ${x.done?"done":""} ${g.l?"cl":""} ${g.r?"cr":""}" style="--pc:${x.color};left:${g.a*100/7}%;width:${(g.b-g.a+1)*100/7}%;top:calc(var(--pcn) + ${g.L} * var(--pcl))" title="${esc(x.name)} · ${fD(x.start)} – ${fD(x.end)}"><span>${x.sub?"↳ ":""}${esc(x.name)}</span></div>`}).join("");
+      return `<div class="pc-bar ${x.sub?"sub":""} ${x.done?"done":""} ${g.l?"cl":""} ${g.r?"cr":""}" data-pid="${x.pid}" style="--pc:${x.color};left:${g.a*100/7}%;width:${(g.b-g.a+1)*100/7}%;top:calc(var(--pcn) + ${g.L} * var(--pcl))" title="${esc(x.name)} · ${fD(x.start)} – ${fD(x.end)}"><span>${x.sub?"↳ ":""}${esc(x.name)}</span></div>`}).join("");
     const cells=ds.map((d,i)=>`<div class="pc-day ${d.getMonth()===m?"":"out"} ${keys[i]===tdk?"today":""}"><div class="pc-num">${d.getDate()}</div>${hid[i]?`<small>+${hid[i]} proje</small>`:""}</div>`).join("");
     weeks+=`<div class="pc-wk pc-wr" style="--lanes:${used}">${cells}${bars}</div>`;
   }
@@ -1556,14 +1578,15 @@ function renderProj(){
   $("#pSubList").innerHTML=pSubListHtml();
   const rows=pRows(),old=$("#pGt"),sl=old?old.scrollLeft:null,st=old?old.scrollTop:null;
   const avg=rows.length?Math.round(rows.reduce((a,q)=>a+(q.prog||0),0)/rows.length):0,late=rows.filter(q=>pLeft(q)!=null&&pLeft(q)<0).length;
-  $("#pSum").textContent=`${rows.length} / ${db.projects.length} proje · ortalama ilerleme %${avg} · ${late} geciken · ${rows.filter(q=>q.done).length} tamamlanan`;
+  const nDone=db.projects.filter(q=>q.done).length,nAct=db.projects.length-nDone;$("#pDoneTab").textContent="✓ Tamamlanan projeler ("+nDone+")";
+  $("#pSum").textContent=pTab==="done"?`${rows.length} / ${nDone} tamamlanan proje`:`${rows.length} / ${nAct} proje · ortalama ilerleme %${avg} · ${late} geciken · ${nDone} tamamlanan`;
   $("#pClearAll").hidden=!Object.values(pHid).some(x=>x&&x.size);
-  v.innerHTML=pTab==="track"?pTable(rows):pTab==="gantt"?pGantt(rows):pCalendar(rows);
+  v.innerHTML=pTab==="track"||pTab==="done"?pTable(rows):pTab==="gantt"?pGantt(rows):pCalendar(rows);
   const g=$("#pGt");if(g){g.scrollLeft=sl!=null?sl:Math.max(0,+g.dataset.today-300);if(st!=null)g.scrollTop=st}
 }
 function pListHtml(k){
   const c=PC.find(x=>x.k===k),m=new Map();
-  db.projects.forEach(q=>{const x=c.v(q),e=m.get(x)||{n:0,key:c.s(q)};e.n++;m.set(x,e)});
+  db.projects.filter(q=>(pTab==="done")===!!q.done).forEach(q=>{const x=c.v(q),e=m.get(x)||{n:0,key:c.s(q)};e.n++;m.set(x,e)});
   const hid=pHid[k]||new Set(),ks=[...m.keys()].sort((a,b)=>{const x=m.get(a).key,y=m.get(b).key;return typeof x==="string"?x.localeCompare(y,"tr"):x-y});
   const sh=ks.filter(x=>x.toLocaleLowerCase("tr").includes(pQ.toLocaleLowerCase("tr")));
   return `<label><input type="checkbox" data-pall ${sh.every(x=>!hid.has(x))?"checked":""}> (Tümünü seç)</label>`+(sh.map(x=>`<label><input type="checkbox" data-pv="${esc(x)}" ${hid.has(x)?"":"checked"}> <span>${esc(x)}</span><span class="tag">${m.get(x).n}</span></label>`).join("")||'<div class="empty">Sonuç yok</div>');
@@ -1579,7 +1602,7 @@ function pAdd(){
   const n=$("#pNN").value.trim(),c=$("#pNC").value.trim();if(!n&&!c)return toast("Proje adı veya müşteri yaz.");
   let st=$("#pNS").value||todayS(),en=$("#pNE").value;if(!en){const d=new Date(st+"T00:00");d.setDate(d.getDate()+30);en=iso(d)}
   if(dN(en)<dN(st))return toast("Bitiş tarihi başlangıçtan önce olamaz.");
-  db.projects.push({id:uid(),client:c,name:n,start:st,end:en,prog:0,done:false,color:pNextColor(),created:Date.now()});$("#pNN").value="";save();
+  db.projects.push({id:uid(),client:c,name:n,start:st,end:en,prog:0,done:false,color:pNextColor(),created:Date.now()});$("#pNN").value="";if(pTab==="done"){pTab="track";localStorage.setItem("pTab",pTab)}save();
 }
 function pSubAdd(){
   const pid=$("#pSubParent").value,name=$("#pSubName").value.trim(),start=$("#pSubStart").value,end=$("#pSubEnd").value;
@@ -1617,7 +1640,7 @@ $("#proje").addEventListener("change",e=>{
     if(d.f==="prog"){q.prog=Math.max(0,Math.min(100,Math.round(+t.value||0)));q.done=q.prog===100}
     else{q[d.f]=t.value.trim?t.value.trim():t.value;if((d.f==="start"||d.f==="end")&&q.start&&q.end&&q.end<q.start)toast("Uyarı: bitiş tarihi başlangıçtan önce.")}
     save()}
-  else if(d.fd){const q=db.projects.find(y=>y.id===d.fd);if(!q)return;q.done=t.checked;if(t.checked)q.prog=100;save()}
+  else if(d.fd){const q=db.projects.find(y=>y.id===d.fd);if(!q)return;if(t.checked){if((q.prog||0)<100)q.prevProg=q.prog||0;q.prog=100}else if(q.prog===100)q.prog=q.prevProg!=null?q.prevProg:90;q.done=t.checked;save();if(!t.checked)toast("Proje, Proje takip listesine geri taşındı.")}
   else if(d.pv!=null||d.pall!=null){const k=pPopK,h=pHid[k]||(pHid[k]=new Set());
     if(d.pall!=null){$$("#pPL [data-pv]").forEach(i=>t.checked?h.delete(i.dataset.pv):h.add(i.dataset.pv))}
     else t.checked?h.delete(d.pv):h.add(d.pv);
@@ -1843,16 +1866,40 @@ $("#bildirimIzin").onclick=async()=>{if(!("Notification" in window))return toast
 async function ntfy(body){return fetch("https://ntfy.sh/",{method:"POST",body:JSON.stringify(Object.assign({topic:db.settings.ntfy},body))})}
 $("#nAc").onclick=()=>{const v=$("#nConu").value.trim();if(v.length<8)return toast("Konu adı en az 8 karakter olsun.");db.settings.ntfy=v;db.settings.ntfyOn=true;db.pushed={};save(true);fill();pushSync();toast("Açıldı. Telefonda ntfy ile bu konuya abone ol.")};
 $("#nTest").onclick=async()=>{try{const r=await ntfy({title:"Asistan",message:"Test bildirimi çalışıyor."});toast(r.ok?"Test gönderildi.":"Gönderilemedi.")}catch(e){toast("Gönderilemedi.")}};
+let pushBusy=false,pushAgain=false;
+/* ntfy'de bekleyen (zamanlanmış) ama artık geçerli olmayan bildirimleri iptal et */
+async function ntfyCleanup(validSigs){
+  const topic=encodeURIComponent(db.settings.ntfy),now=Date.now();
+  const r=await fetch(`https://ntfy.sh/${topic}/json?poll=1&scheduled=1&since=all`);if(!r.ok)return;
+  const lines=(await r.text()).split("\n").filter(Boolean);
+  for(const ln of lines){let m;try{m=JSON.parse(ln)}catch(e){continue}
+    if(m.event&&m.event!=="message")continue;
+    if(!m.id||!(m.time*1000>now+5e3))continue;
+    if(m.title!=="Anımsatıcı"&&m.title!=="Etkinlik")continue;
+    if(validSigs.has(m.title+"|"+(m.message||"")+"|"+m.time))continue;
+    try{await fetch(`https://ntfy.sh/${topic}/${encodeURIComponent(m.sequence_id||m.id)}`,{method:"DELETE"})}catch(e){}
+  }
+}
 async function pushSync(){
   schedDaily();
   const s=db.settings;if(!s.ntfyOn)return;
-  const now=Date.now(),max=now+71*36e5,items=[];
-  db.tasks.forEach(t=>{if(t.rem&&!t.done)items.push({k:"t"+t.id+t.rem,at:new Date(t.rem).getTime(),title:"Anımsatıcı",msg:t.title})});
-  db.events.forEach(e=>items.push({k:"e"+e.id+e.date+e.time+e.remind,at:new Date(e.date+"T"+(e.time||"09:00")).getTime()-(e.remind||0)*6e4,title:"Etkinlik",msg:e.title+(e.time?" · "+e.time:"")}));
-  for(const i of items){if(i.at>now+2e4&&i.at<max&&!db.pushed[i.k]){try{const r=await ntfy({title:i.title,message:i.msg,delay:String(Math.floor(i.at/1000))});if(r.ok)db.pushed[i.k]=i.at}catch(e){break}}}
-  Object.keys(db.pushed).forEach(k=>{if(db.pushed[k]<now-864e5)delete db.pushed[k]});
-  localStorage.setItem(KEY,JSON.stringify(db));
+  if(pushBusy){pushAgain=true;return}
+  pushBusy=true;
+  try{
+    const now=Date.now(),max=now+71*36e5,items=[];
+    db.tasks.forEach(t=>{if(t.rem&&!t.done)items.push({k:"t"+t.id+t.rem,at:new Date(t.rem).getTime(),title:"Anımsatıcı",msg:t.title})});
+    db.events.forEach(e=>items.push({k:"e"+e.id+e.date+e.time+e.remind,at:new Date(e.date+"T"+(e.time||"09:00")).getTime()-(e.remind||0)*6e4,title:"Etkinlik",msg:e.title+(e.time?" · "+e.time:"")}));
+    const validKeys=new Set(items.map(i=>i.k)),validSigs=new Set(items.filter(i=>isFinite(i.at)).map(i=>i.title+"|"+i.msg+"|"+Math.floor(i.at/1000)));
+    /* silinen / tamamlanan / değişen öğelerin bekleyen kayıtlarını unut ve ntfy'den iptal et */
+    Object.keys(db.pushed).forEach(k=>{if(!validKeys.has(k)&&db.pushed[k]>now)delete db.pushed[k]});
+    try{await ntfyCleanup(validSigs)}catch(e){}
+    for(const i of items){if(i.at>now+2e4&&i.at<max&&!db.pushed[i.k]){try{const r=await ntfy({title:i.title,message:i.msg,delay:String(Math.floor(i.at/1000))});if(r.ok)db.pushed[i.k]=i.at}catch(e){break}}}
+    Object.keys(db.pushed).forEach(k=>{if(db.pushed[k]<now-864e5)delete db.pushed[k]});
+    localStorage.setItem(KEY,JSON.stringify(db));
+  }finally{pushBusy=false;if(pushAgain){pushAgain=false;setTimeout(pushSync,1500)}}
 }
+
+
 
 /* sayfa açıkken uyarılar */
 const notified=new Set(JSON.parse(sessionStorage.getItem("notified")||"[]"));
@@ -1917,7 +1964,7 @@ async function sync(again){
       let need=missing||ss.dirty;
       if(remote){
         const mg=merge(db,remote);
-        if(JSON.stringify(strip(mg))!==JSON.stringify(strip(db))){db=mg;migrateTasks();snapshot();localStorage.setItem(KEY,JSON.stringify(db));render();const ed=document.activeElement;if($("#notlar").classList.contains("on")&&!(ed&&ed.closest&&ed.closest("#nEd")))renderNotes()}
+        if(JSON.stringify(strip(mg))!==JSON.stringify(strip(db))){db=mg;migrateTasks();snapshot();localStorage.setItem(KEY,JSON.stringify(db));render();pushSync();const ed=document.activeElement;if($("#notlar").classList.contains("on")&&!(ed&&ed.closest&&ed.closest("#nEd")))renderNotes()}
         need=JSON.stringify(strip(mg))!==JSON.stringify(strip(remote));
       }
       if(need){
@@ -2280,9 +2327,10 @@ function buildSummary(k,wx){
   const late=db.tasks.filter(t=>open(t)&&t.due&&t.due<td).sort((a,b)=>a.due.localeCompare(b.due)).map(t=>({id:t.id,title:t.title,due:t.due}));
   const projs=db.projects.filter(q=>!q.done&&dN(q.end)!=null).map(q=>({id:q.id,title:q.name||"Proje",d:dN(q.end)-dN(k)})).filter(x=>x.d>=0&&x.d<=3).sort((a,b)=>a.d-b.d);
   const ongoing=db.projects.filter(q=>!q.done&&q.start&&q.end&&q.start<=k&&q.end>=k).map(q=>({id:q.id,title:q.name||"Proje",start:q.start,end:q.end,prog:q.prog||0,subs:(q.subprojects||[]).filter(sp=>!sp.done&&sp.start<=k&&sp.end>=k).map(sp=>sp.name)}));
+  const lateProj=db.projects.filter(q=>!q.done&&q.end&&q.end<k).map(q=>({id:q.id,title:q.name||"Proje",client:q.client||"",end:q.end,d:dN(k)-dN(q.end),prog:q.prog||0})).sort((a,b)=>b.d-a.d);
   const label=new Date(k+"T00:00").toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"});
   const focus=isT?(tasks.find(t=>t.star)||tasks[0]||null):null;
-  return {k,isT,label,wx:wxFor(k,wx),evs,tasks,rems,late,projs,ongoing,focus};
+  return {k,isT,label,wx:wxFor(k,wx),evs,tasks,rems,late,projs,lateProj,ongoing,focus};
 }
 const smList=(a,n,f)=>a.slice(0,n).map(f).join(" · ")+(a.length>n?" · +"+(a.length-n)+" daha":"");
 async function dailyAiExtras(s){
@@ -2301,6 +2349,7 @@ async function sumText(s){
   L.push("🌦️ HAVA");L.push(w?`${w.city}: ${w.txt}, ${w.mn}°–${w.mx}°, yağış %${w.pp}.${w.tip?" "+w.tip:""}`:"Hava durumu için Ayarlar bölümünden şehir seç.");
   L.push("\n✅ GÜNÜN GÖREVLERİ");L.push(list(s.tasks,8,t=>(t.star?"★ ":"")+(t.time?t.time+" ":"")+t.title));if(s.late.length)L.push("Geciken: "+list(s.late,4,x=>x.title));
   L.push("\n📌 DEVAM EDEN PROJELER");L.push(list(s.ongoing,8,x=>`${x.title} (%${x.prog})${x.subs.length?" · "+x.subs.join(", "):""}`));
+  if(s.lateProj.length){L.push("\n⚠️ GECİKEN PROJELER");L.push(list(s.lateProj,6,x=>`${x.title}${x.client?" ("+x.client+")":""} · son tarih ${fD(x.end)} · ${x.d} gün gecikti · %${x.prog}`))}
   L.push("\n📅 GÜNÜN ETKİNLİKLERİ");L.push(list(s.evs,8,e=>(e.time?e.time+" ":"")+e.title));
   L.push("\n📜 GÜNÜN ATASÖZÜ");L.push(ai.proverb);
   L.push("\n💡 GÜNÜN MOTİVASYONU");L.push(ai.motivation);
@@ -2318,6 +2367,7 @@ function sumHTML(s,title,foot){
   if(s.rems.length)h+=row("🔔",`<b>Anımsatıcı</b><div class="sm-ls">${s.rems.slice(0,4).map(tk).join("")}${more(s.rems,4)}</div>`);
   if(s.late.length)h+=row("⚠️",`<b>${s.late.length} gecikmiş görev</b><div class="sm-ls">${s.late.slice(0,3).map(x=>`<span class="sm-c" data-topen="${x.id}">${esc(x.title)} <span class="d-s">(${fD(x.due)})</span></span>`).join("")}${more(s.late,3)}</div>`);
   if(s.projs.length)h+=row("📌",`<b>Proje teslimi</b><div class="sm-ls">${s.projs.map(x=>`<span class="sm-c" data-pgo="proje">${esc(x.title)} <span class="d-s">(${x.d===0?"bugün":x.d+" gün"})</span></span>`).join("")}</div>`);
+  if(s.lateProj.length)h+=row("⚠️",`<b>${s.lateProj.length} geciken proje</b><div class="sm-ls">${s.lateProj.slice(0,4).map(x=>`<span class="sm-c" data-pgo="proje">${esc(x.title)} <span class="d-s">(${fD(x.end)} · ${x.d} gün)</span></span>`).join("")}${more(s.lateProj,4)}</div>`);
   if(s.focus)h+=row("🎯",`<b>Önce şunu bitir:</b> <span class="sm-c" data-topen="${s.focus.id}">${esc(s.focus.title)}</span>`);
   if(foot)h+=`<div class="sm-f">${foot}</div>`;
   return h;
@@ -3360,6 +3410,55 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
   addTodayButtons(document);
   new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)addTodayButtons(n)}))).observe(document.body,{childList:true,subtree:true});
 })();
+
+/* ===== Proje popup: notlar + to-do ===== */
+function pjCnt(id){return db.tasks.filter(t=>t.proj===id&&!t.done).length+db.notes.filter(n=>n.proj===id).length}
+function pjBadge(t){if(!t.proj)return"";const q=db.projects.find(x=>x.id===t.proj);if(!q)return"";return `<span class="pj-tag" style="--pc:${pColor(q)}" title="Proje: ${esc(q.name||"Adsız proje")}">${esc(q.client||q.name||"Proje")} TO-DO</span>`}
+const prEl=document.createElement("div");prEl.id="prmodal";prEl.className="mback";prEl.hidden=true;
+prEl.innerHTML='<div class="mbox pj-box" role="dialog" aria-modal="true" aria-label="Proje ayrıntıları"><div id="prbody"></div></div>';document.body.append(prEl);
+let prId=null;
+function prOpen(id){if(!db.projects.some(q=>q.id===id))return;prId=id;prEl.hidden=false;prRender();const i=$("#prTd");if(i)i.focus()}
+function prClose(){prId=null;prEl.hidden=true}
+function prRender(){
+  if(!prId)return;const q=db.projects.find(x=>x.id===prId);if(!q){prClose();return}
+  const keepT=($("#prTd")||{}).value||"",keepN=($("#prNt")||{}).value||"";
+  const todos=db.tasks.filter(t=>t.proj===prId&&!t.done),notes=db.notes.filter(n=>n.proj===prId);
+  const ex=n=>{const d=document.createElement("div");d.innerHTML=cleanHTML(n.html||"");return(d.textContent||"").trim().slice(0,140)||n.title||"Boş not"};
+  $("#prbody").innerHTML=`<div class="pj-h"><i class="pj-dot" style="background:${pColor(q)}"></i><div><b>${esc(q.name||"Adsız proje")}</b><div class="tag">${esc(q.client||"Müşteri yok")} · ${q.start?fD(q.start):"?"} → ${q.end?fD(q.end):"?"} · %${q.prog||0}</div></div><button class="x" data-prx aria-label="Kapat">×</button></div>
+<h4>To-do (${todos.length})</h4>
+<div class="pj-add"><input type="text" id="prTd" placeholder="Yeni to-do ekle…" aria-label="Yeni to-do"><button class="btn" data-pradd="td">Ekle</button></div>
+${todos.map(t=>`<div class="pj-it"><button class="circ" data-prtc="${t.id}" aria-label="Tamamla"></button><span>${esc(t.title)}</span></div>`).join("")||'<div class="tag" style="padding:6px 0">Açık to-do yok. Tamamlanan to-do bu listeden kalkar.</div>'}
+<h4>Notlar (${notes.length})</h4>
+<div class="pj-add"><textarea id="prNt" placeholder="Projeye not ekle… (Ctrl+Enter ile kaydet)" aria-label="Yeni not"></textarea><button class="btn" data-pradd="nt">Ekle</button></div>
+${notes.map(n=>`<div class="pj-it"><span class="pj-nt" data-pron="${n.id}" title="Notlar sekmesinde aç">▤ ${esc(ex(n))}</span><button class="x" data-prnd="${n.id}" aria-label="Notu sil">×</button></div>`).join("")||'<div class="tag" style="padding:6px 0">Henüz not yok. Eklenen notlar Notlar sekmesinde de görünür.</div>'}`;
+  $("#prTd").value=keepT;$("#prNt").value=keepN;
+}
+function prAddTodo(){const i=$("#prTd"),v=(i.value||"").trim();if(!v)return;
+  db.tasks.push({id:uid(),title:v,list:"tasks",person:"",start:todayS(),due:"",rem:"",repeat:"",done:false,star:false,steps:[],note:"",myday:"",created:Date.now(),proj:prId});
+  i.value="";save();prRender();const n=$("#prTd");if(n)n.focus()}
+function prAddNote(){const i=$("#prNt"),v=(i.value||"").trim();if(!v)return;const q=db.projects.find(x=>x.id===prId);if(!q)return;
+  db.notes.unshift({id:uid(),title:(q.name||"Proje")+" · "+v.split("\n")[0].slice(0,40),type:"page",html:"<div>"+esc(v).replace(/\n/g,"</div><div>")+"</div>",bg:"lined",lines:[],proj:prId});
+  i.value="";save();prRender()}
+prEl.addEventListener("click",e=>{const t=e.target;let x;
+  if(t===prEl||t.closest("[data-prx]"))prClose();
+  else if(x=t.closest("[data-pradd]"))x.dataset.pradd==="td"?prAddTodo():prAddNote();
+  else if(x=t.closest("[data-prtc]")){toggleTask(x.dataset.prtc);prRender()}
+  else if(x=t.closest("[data-pron]")){const id=x.dataset.pron;prClose();curNote=id;go("notlar");renderNotes()}
+  else if(x=t.closest("[data-prnd]")){if(confirm("Bu not silinsin mi?")){db.notes=db.notes.filter(n=>n.id!==x.dataset.prnd);if(curNote===x.dataset.prnd)curNote=null;save();prRender()}}
+});
+prEl.addEventListener("keydown",e=>{if(e.target.id==="prTd"&&e.key==="Enter"){e.preventDefault();prAddTodo()}else if(e.target.id==="prNt"&&e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();prAddNote()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!prEl.hidden)prClose()});
+document.addEventListener("click",e=>{const t=e.target;if(t.closest("input,select,textarea"))return;let x,id;
+  if(x=t.closest("[data-popen]"))id=x.dataset.popen;
+  else if((x=t.closest("#proje .gt-r .gt-l, #proje .gt-r .gt-b")))id=x.closest(".gt-r").dataset.pid;
+  else if(x=t.closest("#proje .pc-bar[data-pid]"))id=x.dataset.pid;
+  else if(x=t.closest("#proje td.pn"))id=x.closest("tr").dataset.pid;
+  if(id)prOpen(id)});
+
+/* hızlı ekleme: özel tekrar günleri */
+function tdRdSync(){$$("#tdRdBox [data-tdrd]").forEach(b=>{const on=tdRd.has(+b.dataset.tdrd);b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)})}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-tdrd]");if(!b)return;const x=+b.dataset.tdrd;tdRd.has(x)?tdRd.delete(x):tdRd.add(x);tdRdSync()});
+document.addEventListener("change",e=>{if(e.target.id!=="tdRep")return;const c=e.target.value==="custom",bx=$("#tdRdBox");if(bx)bx.hidden=!c;if(c&&!tdRd.size){const d=$("#tdDue").value||todayS();tdRd.add(new Date(d+"T00:00").getDay())}tdRdSync()});
 </script>
 </body>
 </html>
